@@ -74,7 +74,7 @@ function render(){if(!state)return;
 }
 async function change(changes){if(!state||busy)return;busy=true;try{await update(pokemonRef,changes);status('Saved');}catch(e){status('Could not save. Check your connection.',true);}finally{busy=false;}}
 function cardImage(url){return url;}
-function openPicker(p){pickerPlayer=p;$("picker").classList.add("open");$("pickerFrame").src="./pokemoncardpicker.html";}
+function openPicker(p){pickerPlayer=p;$("picker").classList.add("open");$("pickerFrame").src="./pokemoncardpicker.html?v=autosearch2";}
 function closePicker(){$("picker").classList.remove("open");$("pickerFrame").src="about:blank";}
 $("pickerClose").onclick=closePicker;
 window.addEventListener("message",event=>{if(event.origin!==location.origin||event.source!==$("pickerFrame").contentWindow||event.data?.type!=="tcgstore:pokemon-card-selected")return;const card=safeCard(event.data.card);if(event.data.card&&!card)return;closePicker();change({["player"+pickerPlayer+"_card"]:card});});
