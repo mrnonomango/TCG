@@ -1,8 +1,62 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TCG Store · Stream Links</title><style>
-*{box-sizing:border-box}body{margin:0;background:#0b1420;color:#eef5fc;font:17px Arial,sans-serif;padding:32px 18px}main{max-width:760px;margin:auto}h1{font-size:32px;margin-bottom:10px}p{color:#bfd0e0;line-height:1.5}section{margin:24px 0;padding:22px;border:1px solid #36536e;border-radius:14px;background:#132336}h2{margin-top:0}nav{display:grid;gap:12px}a{display:block;padding:15px;border:1px solid #47759c;border-radius:9px;background:#204c70;color:white;text-decoration:none}a:hover{background:#2c638e}small{display:block;color:#c5d8e9;margin-top:5px;font-size:13px}.note{font-size:14px}</style></head><body><main>
-<h1>TCG Store</h1><p>Overlays and controllers for the store’s stream.</p>
-<section><h2>Lorcana</h2><nav><a href="./lorcanaoverlay.html" target="_blank" rel="noopener">OBS Overlay<small>Add this page’s URL to an OBS browser source at 1920 × 1080.</small></a><a href="./lorcanacontroller.html">Staff Controller<small>Player details, scores, featured cards, and round timer.</small></a><a href="./lorcanaplayertablet.html">Player Controller<small>Tabletop controls for both players.</small></a></nav></section>
-<section><h2>One Piece</h2><nav><a href="./onepieceoverlay.html" target="_blank" rel="noopener">OBS Overlay<small>Add this page’s URL to an OBS browser source at 1920 × 1080.</small></a><a href="./onepiececontroller.html">Staff Controller<small>Names, life, wins, cards, timer, and overlay colors.</small></a><a href="./onepieceplayertablet.html">Player Controller<small>Tabletop controls for both players.</small></a></nav></section>
-<p class="note">Bookmark the individual pages for direct access.</p>
-</main></body></html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TCG Store · Stream Links</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#0b1420;color:#eef5fc;font:17px Arial,sans-serif;padding:32px 18px}
+main{max-width:760px;margin:auto}h1{font-size:32px;margin-bottom:10px}
+p{color:#bfd0e0;line-height:1.5}
+section{margin:24px 0;padding:22px;border:1px solid #36536e;border-radius:14px;background:#132336}
+h2{margin:0 0 18px}.links{display:grid;gap:14px}
+.linkCard{padding:16px;border:1px solid #36536e;border-radius:10px;background:#0e1c2c}
+h3{font-size:18px;margin:0}.linkCard p{font-size:14px;margin:7px 0 12px}
+input{width:100%;min-width:0;padding:12px;border:1px solid #4b6680;border-radius:7px;background:#09131f;color:#d5eaff;font:14px monospace}
+.actions{display:flex;gap:10px;margin-top:11px}
+button,a{padding:11px 18px;border:1px solid #47759c;border-radius:7px;background:#204c70;color:white;text-decoration:none;font:700 15px Arial;cursor:pointer;touch-action:manipulation}
+button:hover,a:hover{background:#2c638e}button{flex:1}a{background:transparent}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #a9dcff;outline-offset:3px}
+#copyStatus{position:sticky;bottom:12px;min-height:24px;padding:10px;border-radius:8px;background:#204c70;color:white;font-size:14px}
+#copyStatus:empty{visibility:hidden}
+.srOnly{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+@media(max-width:480px){body{padding:20px 12px}section{padding:14px}.linkCard{padding:12px}}
+</style>
+</head>
+<body><main>
+<h1>TCG Store</h1><p>Copy a link below to share it or use it in OBS. Choose Open to launch a page.</p>
+<section aria-labelledby="lorcanaTitle"><h2 id="lorcanaTitle">Lorcana</h2><div class="links"><article class="linkCard"><h3>OBS Overlay</h3><p>Use in OBS at 1920 × 1080.</p><label class="srOnly" for="lorcanaoverlay">Lorcana OBS Overlay URL</label><input id="lorcanaoverlay" type="text" readonly value="https://mrnonomango.github.io/TCG/lorcanaoverlay.html" spellcheck="false"><div class="actions"><button type="button" data-copy="lorcanaoverlay" aria-label="Copy Lorcana OBS Overlay link">Copy link</button><a href="https://mrnonomango.github.io/TCG/lorcanaoverlay.html" target="_blank" rel="noopener">Open<span class="srOnly"> Lorcana OBS Overlay in a new tab</span></a></div></article>
+<article class="linkCard"><h3>Staff Controller</h3><p>Staff controls for the match and timer.</p><label class="srOnly" for="lorcanacontroller">Lorcana Staff Controller URL</label><input id="lorcanacontroller" type="text" readonly value="https://mrnonomango.github.io/TCG/lorcanacontroller.html" spellcheck="false"><div class="actions"><button type="button" data-copy="lorcanacontroller" aria-label="Copy Lorcana Staff Controller link">Copy link</button><a href="https://mrnonomango.github.io/TCG/lorcanacontroller.html" target="_blank" rel="noopener">Open<span class="srOnly"> Lorcana Staff Controller in a new tab</span></a></div></article>
+<article class="linkCard"><h3>Player Tablet</h3><p>Tabletop controls for both players.</p><label class="srOnly" for="lorcanaplayertablet">Lorcana Player Tablet URL</label><input id="lorcanaplayertablet" type="text" readonly value="https://mrnonomango.github.io/TCG/lorcanaplayertablet.html" spellcheck="false"><div class="actions"><button type="button" data-copy="lorcanaplayertablet" aria-label="Copy Lorcana Player Tablet link">Copy link</button><a href="https://mrnonomango.github.io/TCG/lorcanaplayertablet.html" target="_blank" rel="noopener">Open<span class="srOnly"> Lorcana Player Tablet in a new tab</span></a></div></article></div></section>
+<section aria-labelledby="onepieceTitle"><h2 id="onepieceTitle">One Piece</h2><div class="links"><article class="linkCard"><h3>OBS Overlay</h3><p>Use in OBS at 1920 × 1080.</p><label class="srOnly" for="onepieceoverlay">One Piece OBS Overlay URL</label><input id="onepieceoverlay" type="text" readonly value="https://mrnonomango.github.io/TCG/onepieceoverlay.html" spellcheck="false"><div class="actions"><button type="button" data-copy="onepieceoverlay" aria-label="Copy One Piece OBS Overlay link">Copy link</button><a href="https://mrnonomango.github.io/TCG/onepieceoverlay.html" target="_blank" rel="noopener">Open<span class="srOnly"> One Piece OBS Overlay in a new tab</span></a></div></article>
+<article class="linkCard"><h3>Staff Controller</h3><p>Staff controls for the match and timer.</p><label class="srOnly" for="onepiececontroller">One Piece Staff Controller URL</label><input id="onepiececontroller" type="text" readonly value="https://mrnonomango.github.io/TCG/onepiececontroller.html" spellcheck="false"><div class="actions"><button type="button" data-copy="onepiececontroller" aria-label="Copy One Piece Staff Controller link">Copy link</button><a href="https://mrnonomango.github.io/TCG/onepiececontroller.html" target="_blank" rel="noopener">Open<span class="srOnly"> One Piece Staff Controller in a new tab</span></a></div></article>
+<article class="linkCard"><h3>Player Tablet</h3><p>Tabletop controls for both players.</p><label class="srOnly" for="onepieceplayertablet">One Piece Player Tablet URL</label><input id="onepieceplayertablet" type="text" readonly value="https://mrnonomango.github.io/TCG/onepieceplayertablet.html" spellcheck="false"><div class="actions"><button type="button" data-copy="onepieceplayertablet" aria-label="Copy One Piece Player Tablet link">Copy link</button><a href="https://mrnonomango.github.io/TCG/onepieceplayertablet.html" target="_blank" rel="noopener">Open<span class="srOnly"> One Piece Player Tablet in a new tab</span></a></div></article></div></section>
+<p>Bookmark these links for direct access.</p>
+<div id="copyStatus" role="status" aria-live="polite"></div>
+</main>
+<script>
+const status=document.getElementById('copyStatus');
+for(const input of document.querySelectorAll('input[readonly]')){
+  input.addEventListener('click',()=>input.select());
+}
+for(const button of document.querySelectorAll('[data-copy]')){
+  let resetTimer;
+  button.addEventListener('click',async()=>{
+    const input=document.getElementById(button.dataset.copy);
+    let copied=false;
+    try{
+      await navigator.clipboard.writeText(input.value);
+      copied=true;
+    }catch{
+      input.focus();input.select();
+      try{copied=document.execCommand('copy');}catch{}
+    }
+    clearTimeout(resetTimer);
+    button.textContent=copied?'Copied!':'Copy link';
+    status.textContent=copied?'Link copied.':'The link is selected. Use Copy on your device, or press Ctrl+C.';
+    if(copied)resetTimer=setTimeout(()=>{button.textContent='Copy link';},2000);
+  });
+}
+</script>
+</body></html>
