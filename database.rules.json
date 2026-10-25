@@ -9,6 +9,10 @@
     "onepiece": {
       ".read": true,
       ".write": true
+    },
+    "pokemon": {
+      ".read": true,
+      ".write": true
     }
   }
 }
