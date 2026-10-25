@@ -643,6 +643,14 @@ input:focus {
     grid-template-columns: 1fr 90px;
   }
 }
+
+.lorcanaThemeGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.lorcanaTheme{min-height:76px;border:2px solid #56667a;border-radius:10px;background:#142338;color:#fff;padding:10px;font:700 14px Arial;cursor:pointer;touch-action:manipulation}
+.lorcanaTheme[aria-pressed="true"]{border-color:#ffd766;box-shadow:0 0 0 2px #ffd76655}
+.lorcanaTheme:focus-visible{outline:3px solid white;outline-offset:3px}
+.lorcanaTheme:disabled{opacity:.6;cursor:wait}
+.lorcanaThemeSwatches{display:flex;height:25px;margin-bottom:8px;border-radius:5px;overflow:hidden}
+.lorcanaThemeSwatches i{flex:1}
 </style>
 </head>
 
@@ -885,13 +893,19 @@ input:focus {
   </div>
 </div>
 
+<section class="section" aria-labelledby="lorcanaAppearanceTitle">
+  <h2 class="sectionTitle" id="lorcanaAppearanceTitle">Overlay Appearance</h2>
+  <div class="lorcanaThemeGrid" id="lorcanaThemeGrid" role="group" aria-label="Lorcana overlay colors"></div>
+  <div class="hint" id="lorcanaThemeStatus" role="status" aria-live="polite">Choose a color theme to update the overlay live.</div>
+</section>
+
 <!-- LEFT PANEL ARTWORK -->
 
 <div class="section artworkSection">
   <div class="sectionTitle">Left Panel Artwork</div>
 
   <div class="artworkDescription">
-    Choose a featured Lorcana card or leave the left gold panel empty.
+    Choose a featured Lorcana card or leave the left panel empty.
   </div>
 
   <div class="artworkModes">
@@ -969,6 +983,37 @@ input:focus {
 
 import {db,ref,onValue,set,update,runTransaction,requireLogin} from './firebase.js';
 await requireLogin();
+const lorcanaThemes = [["gold-blue", "Gold & Blue", "#123150", "#f3c44f", "#f0c85b"], ["deep-ocean", "Deep Ocean", "#071828", "#115a96", "#3196d3"], ["blood-red", "Blood Red", "#1b090d", "#801b29", "#d33d4d"], ["black-gold", "Black & Gold", "#101114", "#343236", "#d6a43a"], ["dark-emerald", "Dark Emerald", "#071d19", "#145d48", "#31a47b"], ["imperial-purple", "Imperial Purple", "#170d26", "#492573", "#9864c4"], ["gunmetal", "Gunmetal", "#0d141a", "#303f4c", "#8aa2b4"]];
+
+const lorcanaThemeRef=ref(db,'theme');
+let savedLorcanaTheme='gold-blue';
+function markLorcanaTheme(){
+  document.querySelectorAll('[data-lorcana-theme]').forEach(button=>{
+    button.setAttribute('aria-pressed',String(button.dataset.lorcanaTheme===savedLorcanaTheme));
+  });
+}
+for(const [id,label,base,primary,accent] of lorcanaThemes){
+  const button=document.createElement('button');
+  button.type='button';button.className='lorcanaTheme';button.dataset.lorcanaTheme=id;
+  button.setAttribute('aria-pressed',String(id===savedLorcanaTheme));
+  const swatches=document.createElement('span');swatches.className='lorcanaThemeSwatches';swatches.setAttribute('aria-hidden','true');
+  for(const color of [base,primary,accent]){const swatch=document.createElement('i');swatch.style.background=color;swatches.append(swatch);}
+  button.append(swatches,document.createTextNode(label));
+  button.addEventListener('click',async()=>{
+    const buttons=document.querySelectorAll('[data-lorcana-theme]');buttons.forEach(b=>b.disabled=true);
+    const status=document.getElementById('lorcanaThemeStatus');status.textContent='Saving theme…';
+    try{await set(lorcanaThemeRef,id);status.textContent=label+' selected.';}
+    catch{markLorcanaTheme();status.textContent='Could not save the theme. Check your connection and try again.';}
+    finally{buttons.forEach(b=>b.disabled=false);}
+  });
+  document.getElementById('lorcanaThemeGrid').append(button);
+}
+onValue(lorcanaThemeRef,snapshot=>{
+  const selected=lorcanaThemes.find(t=>t[0]===snapshot.val())||lorcanaThemes[0];
+  savedLorcanaTheme=selected[0];markLorcanaTheme();
+  document.getElementById('lorcanaThemeStatus').textContent=selected[1]+' selected.';
+},()=>{document.getElementById('lorcanaThemeStatus').textContent='Theme connection unavailable.';});
+
 
 
 const $ = id => document.getElementById(id);
@@ -1935,3 +1980,4 @@ $("resetTimer").addEventListener("click",async () => {
 </script>
 </body>
 </html>
+
