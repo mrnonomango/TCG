@@ -36,7 +36,7 @@
 .goal{width:72px;height:72px;border:3px solid var(--gold);border-radius:50%;box-shadow:0 0 16px #d9b85c55;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 35% 25%,#fff0ac,#d3aa43 65%,#977023);font-size:41px;font-weight:900;color:#30220a}
 .scoreLabel{position:absolute;top:50px;font-size:12px;letter-spacing:2px;font-weight:bold}.scoreLabel.left{left:316px;color:var(--blue)}.scoreLabel.right{right:316px;color:var(--green)}
 .battlefields{position:absolute;left:320px;right:320px;bottom:24px;display:grid;grid-template-columns:1fr 210px 1fr;align-items:end;gap:32px}
-.battlefield{height:240px;border:2px solid var(--gold);border-radius:10px;background:linear-gradient(145deg,#20374a,#0d1826 70%);position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
+.battlefield{height:240px;width:340px;max-width:100%;justify-self:center;border:2px solid var(--gold);border-radius:10px;background:linear-gradient(145deg,#20374a,#0d1826 70%);position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
 .battlefield::before{content:"";position:absolute;inset:8px;border:1px solid #cfb57955;border-radius:5px}
 .battlefield strong{font-size:23px;letter-spacing:2px;color:#dce8f4}.battlefield span{font-size:13px;letter-spacing:2px;color:var(--gold);margin-top:12px}
 .brand{align-self:center;text-align:center;color:#ebd7ab;font-size:30px;font-weight:900;letter-spacing:3px}.brand small{display:block;font-size:11px;color:#8094aa;letter-spacing:2px;margin-top:9px}
@@ -61,8 +61,8 @@
 .championName{position:absolute;bottom:0;left:0;right:0;padding:24px 9px 12px;background:linear-gradient(transparent,#050b16 65%);font-size:16px;line-height:1.2;text-shadow:0 2px 4px #000;z-index:1}
 
 .champion,.battlefield{cursor:pointer}
-.championArt img{position:absolute;width:85%;max-width:none;height:auto;left:7.5%;top:-20px}
-.battlefield img{width:100%;height:100%;object-fit:cover;object-position:center 46%}
+.championArt img{position:absolute;width:100%;max-width:none;height:auto;left:0;top:-28px}
+.battlefield img{width:100%;height:100%;object-fit:contain}
 .battlefield::before{pointer-events:none}
 .cardHint{position:absolute;left:0;right:0;bottom:0;background:#050b16d9;color:#fff;font-size:12px;padding:5px;text-align:center}
 dialog{width:min(920px,94vw);max-height:88vh;padding:22px;border:2px solid #cfb579;border-radius:10px;background:#101d2c;color:white}
