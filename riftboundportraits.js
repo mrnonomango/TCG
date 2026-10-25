@@ -175,9 +175,9 @@ window.riftboundPortraits = [
     "name": "Jinx, Loose Cannon",
     "code": "OGN-251",
     "src": "./riftboundassets/jinxrebelcutout.png",
-    "width": "85%",
-    "left": "7.5%",
-    "top": "-14px"
+    "width": "75%",
+    "left": "12.5%",
+    "top": "-8px"
   },
   {
     "champion": "K'Sante",
