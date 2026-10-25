@@ -73,7 +73,7 @@ function render(){if(!state)return;
 }
 async function change(changes){if(!state||busy)return;busy=true;try{await update(onepieceRef,changes);status('Saved');}catch(e){status('Could not save. Check your connection.',true);}finally{busy=false;}}
 function cardImage(url){try{const u=new URL(url);if(u.hostname!=="en.onepiece-cardgame.com")return url;const file=u.pathname.split("/").pop();if(!/^[A-Za-z0-9_-]+\.png$/.test(file))return url;return "https://optcg-api.arjunbansal-ai.workers.dev/images/"+encodeURIComponent(file.slice(0,-4));}catch(_){return url}}
-function openPicker(p){pickerPlayer=p;$("picker").classList.add("open");$("pickerFrame").src="./onepiece-leader-picker.html";}
+function openPicker(p){pickerPlayer=p;$("picker").classList.add("open");$("pickerFrame").src="./onepieceleaderpicker.html";}
 function closePicker(){$("picker").classList.remove("open");$("pickerFrame").src="about:blank";}
 $("pickerClose").onclick=closePicker;
 window.addEventListener("message",event=>{if(event.origin!==location.origin||event.source!==$("pickerFrame").contentWindow||event.data?.type!=="tcgstore:onepiece-leader-selected")return;const card=event.data.card;closePicker();change({["player"+pickerPlayer+"_leader"]:card});});
