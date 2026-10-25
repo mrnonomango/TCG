@@ -494,6 +494,19 @@ html, body {
   font-variant-numeric: tabular-nums;
 }
 
+
+/* Additional themes leave the original Gold & Blue styling intact. */
+html[data-lorcana-theme] .panel{background:radial-gradient(circle at 50% 90%,var(--lc-accent) 0%,transparent 65%),linear-gradient(180deg,var(--lc-primary),var(--lc-base) 90%);border-color:var(--lc-accent);box-shadow:inset 0 0 35px #0005,0 0 8px var(--lc-accent)}
+html[data-lorcana-theme] .panel::before{border-color:var(--lc-accent)}
+html[data-lorcana-theme] .track,html[data-lorcana-theme] .timer-box{background:linear-gradient(180deg,var(--lc-primary),var(--lc-base) 85%);border-color:var(--lc-accent);box-shadow:inset 0 0 30px #0009}
+html[data-lorcana-theme] .track::before{border-color:var(--lc-accent)}
+html[data-lorcana-theme] .marker{background:radial-gradient(circle at 30% 30%,var(--lc-primary),var(--lc-base) 85%);border-color:var(--lc-accent);box-shadow:inset 0 0 8px #ffffff18}
+html[data-lorcana-theme] .marker.lit{background:radial-gradient(circle at 30% 30%,var(--lc-accent),var(--lc-primary) 35%,var(--lc-base) 90%);border-color:var(--lc-accent)}
+html[data-lorcana-theme] .marker.current{background:radial-gradient(circle at 30% 30%,#fff 0%,var(--lc-accent) 30%,var(--lc-primary) 60%,var(--lc-base) 90%);border-color:#fff;animation:lorcanaThemePulse 1.2s infinite}
+html[data-lorcana-theme] .player-record{color:#fff;text-shadow:0 2px 4px #000}
+html[data-lorcana-theme] .round-name,html[data-lorcana-theme] .time{text-shadow:0 0 2px #fff,0 0 12px var(--lc-accent)}
+html[data-lorcana-theme] .lorcana-logo{filter:brightness(0) invert(1)}
+@keyframes lorcanaThemePulse{0%,100%{box-shadow:0 0 10px #fff,0 0 24px var(--lc-accent),inset 0 0 12px #ffffff77}50%{box-shadow:0 0 16px #fff,0 0 42px var(--lc-accent),inset 0 0 18px #ffffffaa}}
 </style>
 </head>
 
@@ -648,6 +661,20 @@ html, body {
 <script type="module">
 
 import {db,ref,onValue,set,update,runTransaction,requireLogin} from './firebase.js';
+const lorcanaThemes = [["gold-blue", "Gold & Blue", "#123150", "#f3c44f", "#f0c85b"], ["deep-ocean", "Deep Ocean", "#071828", "#115a96", "#3196d3"], ["blood-red", "Blood Red", "#1b090d", "#801b29", "#d33d4d"], ["black-gold", "Black & Gold", "#101114", "#343236", "#d6a43a"], ["dark-emerald", "Dark Emerald", "#071d19", "#145d48", "#31a47b"], ["imperial-purple", "Imperial Purple", "#170d26", "#492573", "#9864c4"], ["gunmetal", "Gunmetal", "#0d141a", "#303f4c", "#8aa2b4"]];
+
+onValue(ref(db,'theme'),snapshot=>{
+  const theme=lorcanaThemes.find(t=>t[0]===snapshot.val())||lorcanaThemes[0];
+  const root=document.documentElement;
+  if(theme[0]==='gold-blue'){
+    delete root.dataset.lorcanaTheme;
+    for(const name of ['--lc-base','--lc-primary','--lc-accent'])root.style.removeProperty(name);
+  }else{
+    root.dataset.lorcanaTheme=theme[0];
+    ['--lc-base','--lc-primary','--lc-accent'].forEach((name,i)=>root.style.setProperty(name,theme[i+2]));
+  }
+});
+
 
 
 const $ = id => document.getElementById(id);
@@ -963,3 +990,4 @@ renderTimer();
 </script>
 </body>
 </html>
+
