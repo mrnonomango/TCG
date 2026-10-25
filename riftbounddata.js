@@ -1,0 +1,15 @@
+import {db,onValue,runTransaction} from './firebase.js';
+import {ref as databaseRef} from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
+import {normalize,applyPatch,scoreState,timerState,seconds} from './riftboundstate.js';
+export {defaults,formatTime} from './riftboundstate.js';
+export {getCard,themes} from './riftboundcatalog.js';
+export const riftboundRef=databaseRef(db,'riftbound');
+let offset=0;
+onValue(databaseRef(db,'.info/serverTimeOffset'),s=>{offset=Number(s.val())||0;});
+export const serverNow=()=>Date.now()+offset;
+export const remaining=s=>seconds(s,serverNow());
+export const watchMatch=(callback,onError)=>onValue(riftboundRef,s=>callback(normalize(s.val())),onError);
+export const watchConnection=callback=>onValue(databaseRef(db,'.info/connected'),s=>callback(s.val()===true));
+export const save=patch=>runTransaction(riftboundRef,current=>applyPatch(current,patch));
+export const adjustScore=(field,delta)=>runTransaction(riftboundRef,current=>scoreState(current,field,delta));
+export const timer=(action,minutes)=>runTransaction(riftboundRef,current=>timerState(current,action,minutes,serverNow()));

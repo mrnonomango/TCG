@@ -1,0 +1,96 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Riftbound OBS Overlay · TCG Store</title><style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#070b12;color:#eef6ff;font-family:Arial,sans-serif}
+#viewport{position:relative;width:100vw;height:100vh;overflow:hidden}
+#scene{position:absolute;width:1920px;height:1080px;transform-origin:top left;background:radial-gradient(ellipse at 50% 35%,#142232,#080d16 75%)}
+:root{--gold:#cfb579;--blue:#49baff;--green:#60d6ab}
+.playArea{position:absolute;left:306px;right:306px;top:176px;bottom:285px;border:1px dashed #70829744;background:repeating-conic-gradient(#ffffff03 0% 25%,transparent 0% 50%) 0 0/36px 36px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#90a3b9}
+.playArea strong{font-size:27px;letter-spacing:4px;color:#bac7d7}.playArea span{margin-top:13px;font-size:16px}
+.timerBox{position:absolute;top:8px;left:50%;transform:translateX(-50%);width:170px;height:64px;border:2px solid var(--gold);border-radius:6px;background:linear-gradient(#26374f,#101a2a);display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 8px 30px #0005;z-index:2}
+.round{font-size:20px;font-weight:800}.time{font-size:34px;font-weight:900;line-height:1}
+.player{position:absolute;top:18px;width:268px;text-align:center;--accent:var(--blue)}
+.player.left{left:18px}.player.right{right:18px;--accent:var(--green)}
+.champion{width:224px;height:310px;margin:auto;border:2px solid var(--gold);border-radius:12px;background:linear-gradient(145deg,#284258,#111d2f 55%,#080e18);position:relative;overflow:hidden;box-shadow:0 10px 25px #0008}
+.champion::before{content:"";position:absolute;inset:10px;border:1px solid #cfb57955;border-radius:7px}
+.championArt{height:238px;position:relative;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 45%,#477d9a55,transparent 66%)}
+.right .championArt{background:radial-gradient(ellipse at 50% 45%,#4a9c7655,transparent 66%)}
+.championSigil{width:100px;height:130px;border:2px solid var(--accent);clip-path:polygon(50% 0,100% 30%,85% 78%,50% 100%,15% 78%,0 30%);background:linear-gradient(145deg,#ffffff22,#ffffff00);display:flex;align-items:center;justify-content:center;font-size:44px;color:var(--accent);font-weight:900}
+.championLabel{font-size:13px;letter-spacing:3px;color:var(--gold);margin:5px 0 7px}.championName{font-size:24px;font-weight:800}
+.camera{position:relative;height:151px;margin-top:20px;border:2px solid var(--accent);border-radius:6px;background:repeating-conic-gradient(#172332 0% 25%,#14202e 0% 50%) 0 0/28px 28px;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#a5b6c9}
+.camera svg{width:34px;height:26px;margin-bottom:10px}.camera span{font-size:15px;letter-spacing:2px}
+.nameplate{margin-top:12px;border:1px solid var(--accent);border-radius:5px;background:linear-gradient(#1c3147,#101b2c);padding:14px 6px;font-size:25px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.record{font-size:19px;color:#b1c5da;margin-top:12px}.wins{display:flex;justify-content:center;gap:16px;margin-top:17px}
+.win{width:29px;height:29px;transform:rotate(45deg);border:3px solid var(--gold);opacity:.3}.win.won{background:#f5e6bd;opacity:1}
+.tracks{position:absolute;left:310px;right:310px;top:82px;height:80px;display:grid;grid-template-columns:1fr 72px 1fr;align-items:center;gap:10px}
+.track{display:flex;justify-content:space-between;align-items:center;position:relative;height:64px;isolation:isolate}
+.track::before{content:"";position:absolute;left:10px;right:10px;top:50%;height:3px;background:#476b8a;z-index:-1}
+.track.right{flex-direction:row-reverse}.track.right::before{background:#3c7666}
+.marker{width:49px;height:49px;border:2px solid #476b8a;border-radius:50%;background:#101d2c;display:flex;align-items:center;justify-content:center;font-size:23px;font-weight:800;color:#a9bdd2}
+.track.right .marker{border-color:#3c7666}.track .marker.current{color:#fff;border:3px solid #b8eaff;box-shadow:0 0 0 4px #49baff45,0 0 22px #49baffdd,0 0 42px #49baff80,inset 0 0 14px #49baff66;background:#176ba1;transform:scale(1.2);font-size:27px;text-shadow:0 0 8px #fff8}
+.track.right .marker.current{border-color:#c1ffe9;box-shadow:0 0 0 4px #60d6ab45,0 0 22px #60d6abdd,0 0 42px #60d6ab80,inset 0 0 14px #60d6ab66;background:#147b59}
+.goal{width:72px;height:72px;border:3px solid var(--gold);border-radius:50%;box-shadow:0 0 16px #d9b85c55;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 35% 25%,#fff0ac,#d3aa43 65%,#977023);font-size:41px;font-weight:900;color:#30220a}
+.scoreLabel{position:absolute;top:50px;font-size:12px;letter-spacing:2px;font-weight:bold}.scoreLabel.left{left:316px;color:var(--blue)}.scoreLabel.right{right:316px;color:var(--green)}
+.battlefields{position:absolute;left:320px;right:320px;bottom:24px;display:grid;grid-template-columns:1fr 210px 1fr;align-items:end;gap:32px}
+.battlefield{height:240px;width:340px;max-width:100%;justify-self:center;border:2px solid var(--gold);border-radius:10px;background:linear-gradient(145deg,#20374a,#0d1826 70%);position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
+.battlefield::before{content:"";position:absolute;inset:8px;border:1px solid #cfb57955;border-radius:5px}
+.battlefield strong{font-size:23px;letter-spacing:2px;color:#dce8f4}.battlefield span{font-size:13px;letter-spacing:2px;color:var(--gold);margin-top:12px}
+.brand{align-self:center;text-align:center;color:#ebd7ab;font-size:30px;font-weight:900;letter-spacing:3px}.brand small{display:block;font-size:11px;color:#8094aa;letter-spacing:2px;margin-top:9px}
+.previewTools{position:absolute;bottom:25px;left:20px;width:265px;font-size:13px;color:#9bb0c5}
+.previewTools p{line-height:1.4;margin:0 0 10px}
+.previewTools button{background:#192a3d;color:white;border:1px solid #57728e;padding:8px 11px;border-radius:5px;font:700 13px Arial;cursor:pointer;margin:0 4px 6px 0;touch-action:manipulation}
+.previewTag{position:absolute;right:22px;bottom:30px;width:260px;color:#8094aa;text-align:right;font-size:13px;line-height:1.6}
+.player{height:795px;display:flex;flex-direction:column;align-items:center;gap:14px}
+.player .camera{width:268px;height:151px;flex-shrink:0;margin:0}
+.player .nameplate{width:268px;flex-shrink:0;margin:0}
+.player .champion{margin:0;flex-shrink:0}
+.player .record,.player .wins{margin:0}
+.player .win{width:43px;height:43px;object-fit:contain;transform:none;border:0;background:none;opacity:.25}
+.player .win.won{opacity:1;background:none}
+.sideLogo{width:250px;height:125px;object-fit:contain;margin-top:auto;flex-shrink:0}
+.centerLogo{display:block;width:240px;height:130px;object-fit:contain;margin:auto}.brand{display:flex;align-items:center;justify-content:center}
+.player .champion{width:268px;height:132px;border-radius:2px;position:relative}
+.champion::before{inset:5px;border-radius:0;z-index:2;pointer-events:none}
+.championArt{height:100%;background:radial-gradient(ellipse at 50% 15%,#5e819d70,transparent 80%),linear-gradient(120deg,#263b53,#0b1422)}
+.right .championArt{background:radial-gradient(ellipse at 50% 15%,#6a9c8570,transparent 80%),linear-gradient(120deg,#263b53,#0b1422)}
+.championSigil{width:70px;height:90px;font-size:28px;opacity:.45}
+.championName{position:absolute;bottom:0;left:0;right:0;padding:24px 9px 12px;background:linear-gradient(transparent,#050b16 65%);font-size:16px;line-height:1.2;text-shadow:0 2px 4px #000;z-index:1}
+
+.champion,.battlefield{cursor:pointer}
+.championArt img{position:absolute;width:100%;max-width:none;height:auto;left:0;top:-28px}
+.battlefield img{width:100%;height:100%;object-fit:contain}
+.battlefield::before{pointer-events:none}
+.cardHint{position:absolute;left:0;right:0;bottom:0;background:#050b16d9;color:#fff;font-size:12px;padding:5px;text-align:center}
+dialog{width:min(920px,94vw);max-height:88vh;padding:22px;border:2px solid #cfb579;border-radius:10px;background:#101d2c;color:white}
+dialog::backdrop{background:#000b}
+.pickerHeader{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.pickerHeader h2{margin:0;font-size:22px}
+dialog button{cursor:pointer;background:#233c54;color:white;border:1px solid #6a8aa7;border-radius:5px;padding:10px}
+#cardSearch{width:100%;padding:14px;margin:18px 0;background:#07111e;color:white;border:1px solid #6a8aa7;border-radius:5px;font-size:18px}
+#cardResults{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;max-height:58vh;overflow:auto}
+.cardChoice{display:flex;flex-direction:column;gap:7px;align-items:center;font-size:14px}
+.cardChoice img{width:100%;height:190px;object-fit:contain}
+#pickerStatus{color:#a9bdd2;font-size:14px;margin-bottom:12px}
+
+/* Compact champion banners with individual cutout framing. */
+.player .champion{height:132px;display:flex;flex-direction:column}
+.player .championArt{height:98px;flex:none;overflow:hidden}
+.player .championArt img{width:100%;left:0;top:-42px}
+.player .championName{position:relative;bottom:auto;left:auto;right:auto;flex:1;display:flex;align-items:center;justify-content:center;padding:5px 8px;background:#07101d;border-top:1px solid #cfb57977;font-size:16px}
+
+.player .championArt.cutout img{width:var(--cutout-width,100%);height:auto;left:var(--cutout-left,0);top:var(--cutout-top,0);max-width:none}
+.player .championArt.cutout{background:radial-gradient(ellipse at 50% 65%,#2b536c77,transparent 75%),#0b1522}
+.player .championName{font-size:14px;line-height:1.1}
+.previewTools a{display:inline-block;color:#8ed5ff;font-weight:bold;margin-bottom:8px}
+
+html,body,#scene{background:transparent}.camera{background:transparent}.champion,.battlefield{cursor:default}.empty{visibility:hidden}.backdrop{position:absolute;inset:0;pointer-events:none}.timerBox{background:linear-gradient(var(--primary),var(--base));border-color:var(--accent)}.timerBox .round{max-width:156px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.champion,.battlefield{border-color:var(--accent)}.player .championName{background:var(--base);border-color:var(--accent)}.player .championArt.cutout{background:linear-gradient(var(--primary),var(--base))}#connection{position:absolute;left:18px;bottom:18px;max-width:265px;padding:8px;color:#fff;background:#101d2ce8;border:1px solid #cfb579;border-radius:5px;font-size:13px}:root{--base:#080d16;--primary:#142232;--accent:#cfb579}
+</style></head><body><div id="viewport"><div id="scene"><svg class="backdrop" width="1920" height="1080" viewBox="0 0 1920 1080" aria-hidden="true"><defs><linearGradient id="panels" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--primary)"/><stop offset="1" style="stop-color:var(--base)"/></linearGradient></defs><path fill="url(#panels)" fill-rule="evenodd" d="M0 0H1920V1080H0Z M306 176H1614V795H306Z M20 20H284V167H20Z M1636 20H1900V167H1636Z"/></svg>
+<div class="timerBox"><div class="round" id="round">Round 1</div><div class="time" id="time">60:00</div></div><div class="scoreLabel left">PLAYER 1 · POINTS</div><div class="scoreLabel right">PLAYER 2 · POINTS</div><div class="tracks"><div class="track left" id="track1"></div><div class="goal" id="goal">8</div><div class="track right" id="track2"></div></div><section class="player left"><div class="camera"></div><div class="nameplate" id="name1">Player 1</div><div class="champion empty" id="legend1"></div><div class="record" id="record1">0-0-0</div><div class="wins"><img class="win" id="win11" src="./riftboundassets/riftboundwin.png" alt="Game win 1"><img class="win" id="win12" src="./riftboundassets/riftboundwin.png" alt="Game win 2"></div></section><section class="player right"><div class="camera"></div><div class="nameplate" id="name2">Player 2</div><div class="champion empty" id="legend2"></div><div class="record" id="record2">0-0-0</div><div class="wins"><img class="win" id="win21" src="./riftboundassets/riftboundwin.png" alt="Game win 1"><img class="win" id="win22" src="./riftboundassets/riftboundwin.png" alt="Game win 2"></div></section><div class="battlefields"><div class="battlefield empty" id="battlefield1"></div><div class="brand"><img class="centerLogo" src="./riftboundassets/riftboundlogo.png" alt="Riftbound"></div><div class="battlefield empty" id="battlefield2"></div></div><div id="connection">Connecting to Riftbound…</div></div></div><script src="./riftboundportraits.js?v=live1"></script><script type="module">
+import {watchMatch,watchConnection,getCard,themes,remaining,formatTime} from './riftbounddata.js';
+const $=id=>document.getElementById(id),portraits=new Map((window.riftboundPortraits||[]).map(p=>[p.champion,p]));let state=null,online=false,loaded=false,error=false;
+function fit(){const scale=Math.min(innerWidth/1920,innerHeight/1080);$('scene').style.transform='translate('+((innerWidth-1920*scale)/2)+'px,'+((innerHeight-1080*scale)/2)+'px) scale('+scale+')';}addEventListener('resize',fit);fit();
+function connection(){const el=$('connection');el.hidden=loaded&&online&&!error;el.textContent=error?'Riftbound connection unavailable':loaded?'Reconnecting…':'Connecting to Riftbound…';}
+function setCard(p,field,kind){const slot=$(field+p),code=state['player'+p+'_'+field];if(slot.dataset.card===(code||''))return;slot.dataset.card=code||'';slot.replaceChildren();const card=getCard(code,kind);slot.classList.toggle('empty',!card);if(!card)return;const img=document.createElement('img');img.alt=card.name;img.onerror=()=>img.style.visibility='hidden';if(kind==='Legend'){const art=document.createElement('div');art.className='championArt';const portrait=portraits.get(card.champion);if(portrait){art.classList.add('cutout');img.src=portrait.src;art.style.setProperty('--cutout-width',portrait.width);art.style.setProperty('--cutout-left',portrait.left);art.style.setProperty('--cutout-top',portrait.top);}else img.src=card.imageUrl;art.append(img);const label=document.createElement('div');label.className='championName';label.textContent=card.name;slot.append(art,label);}else{img.src=card.imageUrl;slot.append(img);}}
+for(const p of [1,2])for(let n=0;n<8;n++){const marker=document.createElement('div');marker.className='marker';marker.textContent=n;marker.dataset.point=n;$('track'+p).append(marker);}
+function tick(){if(state)$('time').textContent=formatTime(remaining(state));}
+function render(s){state=s;const theme=themes.find(t=>t[0]===s.theme)||themes[0];for(const [i,key]of [[2,'--base'],[3,'--primary'],[4,'--accent']])document.documentElement.style.setProperty(key,theme[i]);for(const p of [1,2]){$('name'+p).textContent=s['player'+p+'_name'];$('record'+p).textContent=s['player'+p+'_record'];const track=$('track'+p),points=s['player'+p+'_points'];track.setAttribute('aria-label',s['player'+p+'_name']+': '+points+' points');track.querySelectorAll('.marker').forEach(m=>m.classList.toggle('current',Number(m.dataset.point)===points));for(let w=1;w<=2;w++)$('win'+p+w).classList.toggle('won',s['player'+p+'_wins']>=w);setCard(p,'legend','Legend');setCard(p,'battlefield','Battlefield');}$('round').textContent=s.round_name;const finished=[1,2].filter(p=>s['player'+p+'_points']===8).map(p=>s['player'+p+'_name']);$('goal').style.boxShadow=finished.length?'0 0 0 5px #ffe39a66,0 0 35px #ffd568':'0 0 16px #d9b85c55';$('goal').setAttribute('aria-label',finished.length?finished.join(' and ')+' at 8 points':'8 points');tick();}
+watchMatch(s=>{loaded=true;error=false;render(s);connection();},()=>{error=true;connection();});watchConnection(value=>{online=value;connection();});setInterval(tick,250);document.addEventListener('visibilitychange',tick);
+</script></body></html>

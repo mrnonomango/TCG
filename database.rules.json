@@ -13,6 +13,10 @@
     "pokemon": {
       ".read": true,
       ".write": true
+    },
+    "riftbound": {
+      ".read": true,
+      ".write": true
     }
   }
 }
