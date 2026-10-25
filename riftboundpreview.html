@@ -75,6 +75,12 @@ dialog button{cursor:pointer;background:#233c54;color:white;border:1px solid #6a
 .cardChoice{display:flex;flex-direction:column;gap:7px;align-items:center;font-size:14px}
 .cardChoice img{width:100%;height:190px;object-fit:contain}
 #pickerStatus{color:#a9bdd2;font-size:14px;margin-bottom:12px}
+
+/* Give champion artwork its own taller window and keep names clear of faces. */
+.player .champion{height:210px;display:flex;flex-direction:column}
+.player .championArt{height:172px;flex:none;overflow:hidden}
+.player .championArt img{width:100%;left:0;top:-42px}
+.player .championName{position:relative;bottom:auto;left:auto;right:auto;flex:1;display:flex;align-items:center;justify-content:center;padding:5px 8px;background:#07101d;border-top:1px solid #cfb57977;font-size:16px}
 </style>
 </head>
 <body><div id="viewport"><div id="scene">
