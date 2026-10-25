@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>One Piece Staff Controller · TCG Store</title>
+<style>
+*{box-sizing:border-box}body{margin:0;padding:12px 12px 35px;background:#09131f;color:#fff;font-family:Arial,sans-serif}main{max-width:650px;margin:auto}
+h1{text-align:center;font-size:22px;color:#7dcaff;margin:6px 0}header p{text-align:center;font-size:12px;color:#a5b9ce;margin:5px 0 15px}
+.panel,.section{background:linear-gradient(#1a344c,#101d30);border:2px solid #32668d;border-radius:13px;padding:14px;margin:12px 0}
+.panel h2{margin:0 0 11px;color:#a8daff;font-size:19px}.row{display:grid;grid-template-columns:1.5fr 1fr;gap:9px;margin:10px 0}label{display:block;color:#cad9e7;font-size:12px;font-weight:bold;margin:7px 0 5px}
+input,select{min-width:0;width:100%;padding:11px 10px;border:1px solid #537997;border-radius:8px;font-size:16px;background:#f4f7fa;color:#122334}
+button{cursor:pointer;touch-action:manipulation;font:700 15px Arial;border:0;border-radius:8px;padding:11px;color:white;background:#295c80}
+button:disabled{opacity:.45;cursor:not-allowed}.leader{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;background:#214968;border:1px solid #528db5}
+.leader img{width:40px;height:55px;object-fit:contain}.controls{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.controls>div{text-align:center}
+.value{font-size:34px;font-weight:900}.buttons{display:flex;gap:6px}.buttons button{flex:1;font-size:24px}.plus{background:#207b4f}.minus{background:#96313a}.win{background:#c49b41;color:#131313;width:100%}
+.dots{color:#d8e9f3;margin:4px 0 12px;letter-spacing:9px;font-size:19px}
+.section h2{font-size:18px;color:#91d4ff;margin:0 0 12px}.timer{font-size:43px;font-weight:900;text-align:center;margin:9px}.timerButtons{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:10px 0}
+#status{color:#cee0f1;text-align:center;min-height:20px;margin:10px 0}.warn{color:#ffb1a8!important}
+#picker{display:none;position:fixed;inset:0;z-index:100;background:#05101af5;padding:12px}
+#picker.open{display:flex;flex-direction:column;gap:10px}
+#picker iframe{flex:1;width:100%;border:1px solid #487fa7;border-radius:8px;background:#071828}
+#pickerClose{align-self:flex-end;background:#84363d}
+.themeGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.theme{background:#122235;border:2px solid #355b7b;padding:8px;font-size:12px}
+.theme.active{border-color:#b1e2ff}.swatches{display:flex;height:25px;gap:1px;margin-bottom:5px}.swatches i{flex:1}
+</style></head><body><main>
+<header><h1>ONE PIECE STREAM CONTROL</h1><p>Tournament Staff Controller · TCG Store</p></header>
+<div id="status">Connecting to One Piece room…</div>
+<div id="players"></div>
+<section class="section"><h2>Match Controls</h2><div class="buttons"><button id="resetLife">Reset Both Life</button><button id="resetWins">Reset Games</button></div>
+<label for="round">Round</label><input id="round" maxlength="100" value="Round 1">
+<div class="timer" id="timer">60:00</div>
+<label for="minutes">Set Timer Minutes</label><input id="minutes" type="number" inputmode="numeric" min="0" max="999" value="60">
+<div class="timerButtons"><button id="start" class="plus">Start</button><button id="pause">Pause</button><button id="resetTimer" class="minus">Reset</button></div>
+<button id="applyMinutes" style="width:100%">Apply Minutes</button></section>
+<section class="section"><h2>Overlay Appearance</h2><div id="themes" class="themeGrid"></div></section>
+<div id="picker"><button id="pickerClose">Back to Controller</button><iframe title="One Piece Leader card search" id="pickerFrame" src="about:blank"></iframe></div>
+</main><script type="module">
+import {onepieceRef,onepieceDefaults,onValue,update,runTransaction,requireLogin} from './firebase.js';
+const $=id=>document.getElementById(id);
+await requireLogin();
+
+const themes=[["deep-ocean","Deep Ocean","#071828","#115a96","#3196d3"],["blood-red","Blood Red","#1b090d","#801b29","#d33d4d"],["black-gold","Black & Gold","#101114","#343236","#d6a43a"],["dark-emerald","Dark Emerald","#071d19","#145d48","#31a47b"],["imperial-purple","Imperial Purple","#170d26","#492573","#9864c4"],["gunmetal","Gunmetal","#0d141a","#303f4c","#8aa2b4"]];
+let state=null,version=0,busy=false,inFlight=false,pickerPlayer=1;
+function status(s,error=false){$("status").textContent=s;$("status").className=error?"warn":"";}
+function fmt(n){n=Math.max(0,Math.floor(n));return Math.floor(n/60)+":"+String(n%60).padStart(2,"0");}
+function remaining(){if(!state)return 3600;return Math.max(0,state.timer_remaining_seconds-(state.timer_running&&state.timer_started_at?Math.floor((Date.now()-state.timer_started_at)/1000):0));}
+for(const p of [2,1]){
+ const section=document.createElement("section");section.className="panel";section.innerHTML='<h2>PLAYER '+p+' <span style="float:right">LIFE <span id="v'+p+'" class="value">5</span></span></h2><div class="row"><div><label for="name'+p+'">Player Name</label><input id="name'+p+'" maxlength="80"></div><div><label for="record'+p+'">W-L-D</label><input id="record'+p+'" maxlength="11"></div></div><label>Leader Card</label><button class="leader" id="leader'+p+'">Search and select a card</button><div class="controls"><div><label>ADJUST LIFE</label><div class="buttons"><button class="minus" id="down'+p+'">−</button><button class="plus" id="up'+p+'">+</button></div></div><div><label>GAME WINS</label><div class="dots" id="dots'+p+'">○ ○</div><button class="win" id="win'+p+'">+ Game Win</button></div></div>';
+ $("players").append(section);
+ $("up"+p).onclick=()=>change({["player"+p+"_life"]:Math.min(20,state["player"+p+"_life"]+1)});
+ $("down"+p).onclick=()=>change({["player"+p+"_life"]:Math.max(0,state["player"+p+"_life"]-1)});
+ $("win"+p).onclick=()=>change({["player"+p+"_wins"]:Math.min(2,state["player"+p+"_wins"]+1)});
+ $("leader"+p).onclick=()=>openPicker(p);
+ for(const [id,field] of [["name"+p,"player"+p+"_name"],["record"+p,"player"+p+"_record"]]){
+  $(id).addEventListener("change",()=>change({[field]:$(id).value}));
+ }
+}
+for(const [id,name,base,primary,accent] of themes){
+ const b=document.createElement("button");b.className="theme";b.dataset.theme=id;b.innerHTML='<span class="swatches"><i style="background:'+base+'"></i><i style="background:'+primary+'"></i><i style="background:'+accent+'"></i></span>'+name;
+ b.onclick=()=>change({theme:id});$("themes").append(b);
+}
+function render(){if(!state)return;
+ for(const p of [1,2]){
+ const name=$("name"+p),record=$("record"+p);
+ if(document.activeElement!==name)name.value=state["player"+p+"_name"];
+ if(document.activeElement!==record)record.value=state["player"+p+"_record"];
+ $("v"+p).textContent=state["player"+p+"_life"];
+ const wins=state["player"+p+"_wins"];$("dots"+p).textContent=(wins>=1?"●":"○")+"  "+(wins>=2?"●":"○");
+ const leader=state["player"+p+"_leader"];$("leader"+p).replaceChildren();
+ if(leader){const img=document.createElement("img");const proxy=cardImage(leader.image);img.src=proxy;img.referrerPolicy="no-referrer";img.dataset.fallback=proxy!==leader.image?leader.image:"";img.onerror=()=>{if(img.dataset.fallback){img.src=img.dataset.fallback;img.dataset.fallback="";}else img.style.display="none";};img.alt="";$("leader"+p).append(img,document.createTextNode(leader.name+" · Change"));}else $("leader"+p).textContent="Search and select a card";
+ }
+ if(document.activeElement!==$("round"))$("round").value=state.round_name;
+ $("timer").textContent=fmt(remaining());
+ document.querySelectorAll("[data-theme]").forEach(b=>b.classList.toggle("active",b.dataset.theme===state.theme));
+}
+async function change(changes){if(!state||busy)return;busy=true;try{await update(onepieceRef,changes);status('Saved');}catch(e){status('Could not save. Check your connection.',true);}finally{busy=false;}}
+function cardImage(url){try{const u=new URL(url);if(u.hostname!=="en.onepiece-cardgame.com")return url;const file=u.pathname.split("/").pop();if(!/^[A-Za-z0-9_-]+\.png$/.test(file))return url;return "https://optcg-api.arjunbansal-ai.workers.dev/images/"+encodeURIComponent(file.slice(0,-4));}catch(_){return url}}
+function openPicker(p){pickerPlayer=p;$("picker").classList.add("open");$("pickerFrame").src="./onepiece-leader-picker.html";}
+function closePicker(){$("picker").classList.remove("open");$("pickerFrame").src="about:blank";}
+$("pickerClose").onclick=closePicker;
+window.addEventListener("message",event=>{if(event.origin!==location.origin||event.source!==$("pickerFrame").contentWindow||event.data?.type!=="tcgstore:onepiece-leader-selected")return;const card=event.data.card;closePicker();change({["player"+pickerPlayer+"_leader"]:card});});
+$("resetLife").onclick=()=>change({player1_life:5,player2_life:5});
+$("resetWins").onclick=()=>change({player1_wins:0,player2_wins:0});
+$("round").addEventListener("change",()=>change({round_name:$("round").value}));
+$("start").onclick=()=>{if(!state||remaining()===0)return status("Timer is at 0:00. Reset it first.",true);change({timer_remaining_seconds:remaining(),timer_running:true,timer_started_at:Date.now()})};
+$("pause").onclick=()=>change({timer_remaining_seconds:remaining(),timer_running:false,timer_started_at:null});
+$("resetTimer").onclick=()=>change({timer_remaining_seconds:state.timer_duration_seconds,timer_running:false,timer_started_at:null});
+$("applyMinutes").onclick=()=>{const m=Number($("minutes").value);if(!Number.isInteger(m)||m<0||m>999)return status("Choose 0–999 minutes",true);change({timer_duration_seconds:m*60,timer_remaining_seconds:m*60,timer_running:false,timer_started_at:null})};
+setInterval(()=>{if(state)$("timer").textContent=fmt(remaining())},250);
+onValue(onepieceRef,s=>{state={...onepieceDefaults,...s.val()};render();status('Connected · TCG Store One Piece');},()=>status('Connection unavailable',true));
+</script></body></html>

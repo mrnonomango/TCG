@@ -1,0 +1,633 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TCG Store · Lorcana Player Controller</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#111;color:white;font-family:Arial,sans-serif}
+body{height:100dvh;display:flex;flex-direction:column;touch-action:manipulation}
+.playerHalf{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:clamp(1px,.4vh,4px);padding:3px 8px}
+.topHalf{transform:rotate(180deg);border-bottom:2px solid #333}
+
+.roundTimerBox{display:flex;justify-content:center;align-items:center;gap:10px;width:min(94%,270px);padding:3px 8px;border:2px solid #555;border-radius:10px;background:#181818;flex-shrink:0}
+.roundTimerName{font-size:clamp(11px,1.6vh,15px);font-weight:bold;color:#ddd;white-space:nowrap}
+.roundTimerTime{font-size:clamp(24px,4.2vh,42px);font-weight:bold;line-height:1;font-variant-numeric:tabular-nums}
+
+.loreStack{display:flex;flex-direction:column;align-items:center;justify-content:center;width:min(100%,280px);flex-shrink:0;line-height:1}
+.smallText{font-size:clamp(9px,1.35vh,12px);color:#aaa;font-weight:bold;text-align:center;white-space:nowrap}
+.loreNumber{font-size:clamp(34px,6vh,60px);font-weight:bold;line-height:.95}
+.opponentLore{text-shadow:0 0 7px rgba(255,0,0,.95),0 0 17px rgba(255,0,0,.7),0 0 30px rgba(180,0,0,.45)}
+.yourLore{text-shadow:0 0 7px rgba(0,140,255,.95),0 0 17px rgba(0,140,255,.7),0 0 30px rgba(0,90,255,.45)}
+.loreGap{height:clamp(1px,.5vh,6px)}
+
+.loreButton{display:flex;justify-content:center;align-items:center;width:100%;border:none;border-radius:12px;color:white;font-weight:bold;line-height:1;flex-shrink:0;cursor:pointer;touch-action:manipulation}
+.plusBtn{background:#16852a;height:clamp(44px,8vh,78px);font-size:clamp(40px,6.5vh,64px)}
+.minusBtn{background:#b92828;height:clamp(36px,6vh,60px);font-size:clamp(36px,5.4vh,54px)}
+.loreButton:active{filter:brightness(1.3)}
+
+.nameInput{width:min(88%,240px);height:clamp(24px,3.8vh,34px);padding:3px 6px;border:none;border-radius:8px;background:white;color:black;text-align:center;font-size:clamp(13px,2vh,18px);font-weight:bold;flex-shrink:0;user-select:text}
+.topNameInput{transform:rotate(180deg)}
+.gameDots{display:flex;gap:8px;margin:2px 0;flex-shrink:0}
+.dot{width:clamp(10px,1.7vh,14px);height:clamp(10px,1.7vh,14px);border:2px solid gold;border-radius:50%;background:transparent}
+
+.resetLoreBtn{position:relative;overflow:hidden;width:min(88%,240px);height:clamp(24px,3.5vh,32px);border:none;border-radius:9px;background:#7a2020;color:white;font-size:clamp(11px,1.6vh,13px);font-weight:bold;flex-shrink:0;cursor:pointer;touch-action:none}
+.resetFill{position:absolute;top:0;left:0;height:100%;width:0;background:rgba(255,255,255,.25);z-index:1}
+.resetText{position:relative;z-index:2}
+.gameButtonRow{display:flex;justify-content:center;width:min(94%,270px);gap:8px;flex-shrink:0}
+.gameBtn{flex:1;min-width:0;height:clamp(26px,4vh,34px);border:none;border-radius:9px;font-size:clamp(11px,1.7vh,15px);font-weight:bold;cursor:pointer}
+.goldBtn{background:#d4af37;color:black}
+.resetBtn{background:#444;color:white}
+
+/* INK COLORS */
+
+.identityRow{position:relative;width:min(100%,390px);min-height:clamp(30px,5vh,46px);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.identityRow .nameInput{width:min(48%,190px);min-width:0}
+.inkPick{position:absolute;top:50%;right:0;transform:translateY(-50%);width:clamp(68px,11vh,90px);height:clamp(30px,5vh,46px);border:1px solid #c7a444;border-radius:8px;background:#222;color:#f0c85b;font:900 12px Arial,sans-serif;letter-spacing:.2px;padding:2px;display:flex;justify-content:center;align-items:center;cursor:pointer;touch-action:manipulation}
+.inkPick img{height:100%;width:100%;object-fit:contain}
+.inkPickerOverlay{position:fixed;inset:0;z-index:999;display:none;align-items:center;justify-content:center;padding:12px;background:rgba(3,7,12,.96)}
+.inkPickerOverlay.open{display:flex}
+.inkPickerInner{display:flex;flex-direction:column;align-items:center;gap:9px;width:min(95vw,580px);max-height:94dvh}
+.inkPickerOverlay[data-player="p2"] .inkPickerInner{transform:rotate(180deg)}
+.inkPickerTitle{color:#f0c85b;text-align:center;font-weight:bold}
+.inkGrid{width:100%;max-height:73dvh;overflow:auto;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px}
+.inkChoice{aspect-ratio:1;border:2px solid #555;border-radius:9px;background:#172132;padding:4px;cursor:pointer}
+.inkChoice.selected{border-color:#f0c85b}
+.inkChoice img{width:100%;height:100%;object-fit:contain}
+.inkClose{border:0;border-radius:8px;padding:9px 25px;color:white;background:#444;font-weight:bold}
+
+@media(max-height:700px){
+ .playerHalf{gap:1px;padding-top:1px;padding-bottom:1px}
+ .roundTimerBox{padding-top:1px;padding-bottom:1px}
+ .gameDots{margin:0}
+}
+@media(max-height:560px){
+ .plusBtn{height:36px;font-size:36px}
+ .minusBtn{height:30px;font-size:30px}
+ .loreNumber{font-size:30px}
+ .roundTimerTime{font-size:23px}
+ .nameInput{height:22px}
+ .resetLoreBtn{height:22px}
+ .gameBtn{height:24px}
+ .inkPick{height:30px;font-size:11px}
+ .identityRow{min-height:30px}
+}
+</style>
+</head>
+
+<body>
+
+<!-- PLAYER 2 TOP -->
+
+<div class="playerHalf topHalf">
+ <div class="roundTimerBox">
+  <div id="roundNameTop" class="roundTimerName">Round 1</div>
+  <div id="roundTimeTop" class="roundTimerTime">55:00</div>
+ </div>
+
+ <div class="loreStack">
+  <div class="smallText">OPPONENT LORE</div>
+  <div id="p1_top" class="loreNumber opponentLore">0</div>
+  <div class="loreGap"></div>
+  <div class="smallText">YOUR LORE</div>
+  <div id="p2" class="loreNumber yourLore">0</div>
+ </div>
+
+ <button class="loreButton plusBtn" onclick="updateLore('p2',1)">+</button>
+ <button class="loreButton minusBtn" onclick="updateLore('p2',-1)">−</button>
+
+ <div class="identityRow">
+  <input id="p2NameInput" class="nameInput topNameInput" value="Player 2" aria-label="Player 2 name">
+  <button type="button" class="inkPick" data-ink-player="p2" aria-label="Choose Player 2 ink colors">
+   <span>INK COLORS</span>
+  </button>
+ </div>
+
+ <div class="gameDots">
+  <div id="p2g1" class="dot"></div>
+  <div id="p2g2" class="dot"></div>
+ </div>
+
+ <button class="resetLoreBtn" type="button">
+  <div class="resetFill" id="resetFill1"></div>
+  <span class="resetText" id="resetText1">Hold To Reset Lore</span>
+ </button>
+
+ <div class="gameButtonRow">
+  <button class="gameBtn goldBtn" onclick="addGameWin('p2')">Add Win</button>
+  <button class="gameBtn resetBtn" onclick="resetGames()">Reset Games</button>
+ </div>
+</div>
+
+<!-- PLAYER 1 BOTTOM -->
+
+<div class="playerHalf">
+ <div class="roundTimerBox">
+  <div id="roundNameBottom" class="roundTimerName">Round 1</div>
+  <div id="roundTimeBottom" class="roundTimerTime">55:00</div>
+ </div>
+
+ <div class="loreStack">
+  <div class="smallText">OPPONENT LORE</div>
+  <div id="p2_bottom" class="loreNumber opponentLore">0</div>
+  <div class="loreGap"></div>
+  <div class="smallText">YOUR LORE</div>
+  <div id="p1" class="loreNumber yourLore">0</div>
+ </div>
+
+ <button class="loreButton plusBtn" onclick="updateLore('p1',1)">+</button>
+ <button class="loreButton minusBtn" onclick="updateLore('p1',-1)">−</button>
+
+ <div class="identityRow">
+  <input id="p1NameInput" class="nameInput" value="Player 1" aria-label="Player 1 name">
+  <button type="button" class="inkPick" data-ink-player="p1" aria-label="Choose Player 1 ink colors">
+   <span>INK COLORS</span>
+  </button>
+ </div>
+
+ <div class="gameDots">
+  <div id="p1g1" class="dot"></div>
+  <div id="p1g2" class="dot"></div>
+ </div>
+
+ <button class="resetLoreBtn" type="button">
+  <div class="resetFill" id="resetFill2"></div>
+  <span class="resetText" id="resetText2">Hold To Reset Lore</span>
+ </button>
+
+ <div class="gameButtonRow">
+  <button class="gameBtn goldBtn" onclick="addGameWin('p1')">Add Win</button>
+  <button class="gameBtn resetBtn" onclick="resetGames()">Reset Games</button>
+ </div>
+</div>
+
+<!-- INK IMAGE GALLERY -->
+
+<div id="inkPicker" class="inkPickerOverlay" role="dialog" aria-modal="true" aria-label="Choose ink colors">
+ <div class="inkPickerInner">
+  <div id="inkPickerTitle" class="inkPickerTitle">Choose Ink Colors</div>
+  <div id="inkGrid" class="inkGrid"></div>
+  <button type="button" id="inkClose" class="inkClose">Cancel</button>
+ </div>
+</div>
+
+<script type="module">
+
+import {db,ref,onValue,set,update,runTransaction,requireLogin} from './firebase.js';
+await requireLogin();
+
+
+const p1Ref=ref(db,"p1");
+const p2Ref=ref(db,"p2");
+
+const p1GamesRef=ref(db,"p1Games");
+const p2GamesRef=ref(db,"p2Games");
+
+const p1NameRef=ref(db,"p1Name");
+const p2NameRef=ref(db,"p2Name");
+
+const timerRef=ref(db,"timer");
+
+const p1InksRef=ref(db,"p1Inks");
+const p2InksRef=ref(db,"p2Inks");
+
+const DEFAULT_RESET=3300;
+const DEFAULT_ROUND_NAME="Round 1";
+
+let timerData={
+ roundName:DEFAULT_ROUND_NAME,
+ remaining:DEFAULT_RESET,
+ running:false,
+ startedAt:0
+};
+
+/* INK COMBINATION GALLERY */
+
+const INK_IMAGE_BASE=
+ "./Ink%20combinations/";
+
+const inkImages={
+ "amber,amethyst":"amber amethyst.png",
+ "amber,emerald":"amber emerald.png",
+ "amber,sapphire":"amber sapphire.png",
+ "amber,steel":"amber steel.png",
+ "amethyst,emerald":"amethyst emerald.png",
+ "amethyst,ruby":"amethyst ruby.png",
+ "amethyst,sapphire":"amethyst sapphire.png",
+ "amethyst,steel":"amethyst steel.png",
+ "emerald,ruby":"emerald ruby.png",
+ "emerald,sapphire":"emerald sapphire.png",
+ "emerald,steel":"green steel.png",
+ "ruby,amber":"ruby amber.png",
+ "ruby,sapphire":"ruby sapphire.png",
+ "ruby,steel":"ruby steel.png",
+ "sapphire,steel":"blue steel 1.png"
+};
+
+const inkSrc=filename=>
+ INK_IMAGE_BASE+encodeURIComponent(filename);
+
+function inkKey(arr){
+ if(!Array.isArray(arr))return "";
+
+ const a=arr.join(",");
+ const b=arr.slice().reverse().join(",");
+
+ return inkImages[a]?a:inkImages[b]?b:"";
+}
+
+const inkPicker=document.getElementById("inkPicker");
+const inkGrid=document.getElementById("inkGrid");
+
+let editingInksFor=null;
+
+const currentInks={
+ p1:[],
+ p2:[]
+};
+
+function renderInkButton(player){
+ const button=document.querySelector(
+  `[data-ink-player="${player}"]`
+ );
+
+ const key=inkKey(currentInks[player]);
+
+ button.replaceChildren();
+
+ if(key){
+  const img=document.createElement("img");
+  img.src=inkSrc(inkImages[key]);
+  img.alt=key.replace(","," / ");
+  button.appendChild(img);
+ }else{
+  const label=document.createElement("span");
+  label.textContent="INK COLORS";
+  button.appendChild(label);
+ }
+}
+
+function closeInkPicker(){
+ inkPicker.classList.remove("open");
+ inkPicker.removeAttribute("data-player");
+ editingInksFor=null;
+}
+
+for(const [combination,filename] of Object.entries(inkImages)){
+ const option=document.createElement("button");
+
+ option.type="button";
+ option.className="inkChoice";
+ option.title=combination.replace(","," / ");
+ option.setAttribute("aria-label",option.title);
+
+ const img=document.createElement("img");
+ img.src=inkSrc(filename);
+ img.alt=option.title;
+ img.loading="lazy";
+
+ option.appendChild(img);
+
+ option.addEventListener("click",async()=>{
+  const player=editingInksFor;
+
+  closeInkPicker();
+
+  if(!player)return;
+
+  try{
+   /*
+    FIX: Update both Firebase formats together.
+
+    The Player Tablet reads p1Inks / p2Inks.
+    The personal OBS overlay reads p1Ink / p2Ink.
+
+    Saving both keeps them synchronized.
+   */
+
+   const changes={};
+
+   changes[player+"Inks"]=combination.split(",");
+   changes[player+"Ink"]=filename;
+
+   await update(ref(db),changes);
+
+  }catch(error){
+   console.error("Unable to save ink combination:",error);
+
+   alert("Ink colors could not be saved. Please try again.");
+  }
+ });
+
+ inkGrid.appendChild(option);
+}
+
+document.getElementById("inkClose")
+ .addEventListener("click",closeInkPicker);
+
+document.querySelectorAll("[data-ink-player]")
+ .forEach(button=>{
+  button.addEventListener("click",()=>{
+   const player=button.dataset.inkPlayer;
+
+   editingInksFor=player;
+   inkPicker.dataset.player=player;
+
+   document.getElementById("inkPickerTitle").textContent=
+    (player==="p1"?"Player 1":"Player 2")+
+    " — Choose Ink Colors";
+
+   const selected=inkKey(currentInks[player]);
+
+   for(const option of inkGrid.children){
+    option.classList.toggle(
+     "selected",
+     option.title.replace(" / ",",")===selected
+    );
+   }
+
+   inkPicker.classList.add("open");
+  });
+ });
+
+inkPicker.addEventListener("click",event=>{
+ if(event.target===inkPicker)closeInkPicker();
+});
+
+document.addEventListener("keydown",event=>{
+ if(event.key==="Escape")closeInkPicker();
+});
+
+onValue(p1InksRef,snapshot=>{
+ currentInks.p1=snapshot.val()||[];
+ renderInkButton("p1");
+});
+
+onValue(p2InksRef,snapshot=>{
+ currentInks.p2=snapshot.val()||[];
+ renderInkButton("p2");
+});
+
+/* ROUND TIMER */
+
+function formatTime(totalSeconds){
+ const safe=Math.max(
+  0,
+  Math.floor(Number(totalSeconds)||0)
+ );
+
+ const minutes=Math.floor(safe/60);
+ const seconds=safe%60;
+
+ return `${minutes}:${String(seconds).padStart(2,"0")}`;
+}
+
+function getTimerRemaining(){
+ let remaining=Number(timerData.remaining??DEFAULT_RESET);
+
+ if(timerData.running&&Number(timerData.startedAt)>0){
+  const elapsed=Math.floor(
+   (Date.now()-Number(timerData.startedAt))/1000
+  );
+
+  remaining=Math.max(0,remaining-elapsed);
+ }
+
+ return remaining;
+}
+
+function renderRoundTimer(){
+ const formatted=formatTime(getTimerRemaining());
+ const roundName=timerData.roundName||DEFAULT_ROUND_NAME;
+
+ document.getElementById("roundTimeTop").textContent=formatted;
+ document.getElementById("roundTimeBottom").textContent=formatted;
+
+ document.getElementById("roundNameTop").textContent=roundName;
+ document.getElementById("roundNameBottom").textContent=roundName;
+}
+
+onValue(timerRef,snap=>{
+ timerData=snap.val()||{
+  roundName:DEFAULT_ROUND_NAME,
+  remaining:DEFAULT_RESET,
+  running:false,
+  startedAt:0
+ };
+
+ renderRoundTimer();
+});
+
+setInterval(renderRoundTimer,250);
+
+/* GAME WIN DOTS */
+
+function renderDots(player,wins){
+ document.getElementById(player+"g1").style.background=
+  wins>=1?"gold":"transparent";
+
+ document.getElementById(player+"g2").style.background=
+  wins>=2?"gold":"transparent";
+}
+
+/* FIREBASE LORE LISTENERS */
+
+onValue(p1Ref,snap=>{
+ const value=snap.val()||0;
+
+ document.getElementById("p1").textContent=value;
+ document.getElementById("p1_top").textContent=value;
+});
+
+onValue(p2Ref,snap=>{
+ const value=snap.val()||0;
+
+ document.getElementById("p2").textContent=value;
+ document.getElementById("p2_bottom").textContent=value;
+});
+
+onValue(p1GamesRef,snap=>{
+ renderDots("p1",snap.val()||0);
+});
+
+onValue(p2GamesRef,snap=>{
+ renderDots("p2",snap.val()||0);
+});
+
+/* PLAYER NAME AUTO SAVE */
+
+const p1NameInput=document.getElementById("p1NameInput");
+const p2NameInput=document.getElementById("p2NameInput");
+
+onValue(p1NameRef,snap=>{
+ const name=String(snap.val()||"").trim()||"Player 1";
+
+ if(document.activeElement!==p1NameInput){
+  p1NameInput.value=name;
+ }
+});
+
+onValue(p2NameRef,snap=>{
+ const name=String(snap.val()||"").trim()||"Player 2";
+
+ if(document.activeElement!==p2NameInput){
+  p2NameInput.value=name;
+ }
+});
+
+async function savePlayerName(input,nameRef,defaultName){
+ let name=input.value.trim();
+
+ if(!name)name=defaultName;
+
+ input.value=name;
+
+ await set(nameRef,name);
+}
+
+p1NameInput.addEventListener("blur",()=>{
+ savePlayerName(p1NameInput,p1NameRef,"Player 1");
+});
+
+p2NameInput.addEventListener("blur",()=>{
+ savePlayerName(p2NameInput,p2NameRef,"Player 2");
+});
+
+[p1NameInput,p2NameInput].forEach(input=>{
+ input.addEventListener("keydown",event=>{
+  if(event.key==="Enter"){
+   event.preventDefault();
+   input.blur();
+  }
+ });
+});
+
+/* LORE BUTTONS */
+
+window.updateLore=async(player,change)=>{
+ const loreRef=player==="p1"?p1Ref:p2Ref;
+
+ await runTransaction(loreRef,current=>{
+  const value=Number(current)||0;
+
+  return Math.max(
+   0,
+   Math.min(20,value+change)
+  );
+ });
+};
+
+/* HOLD TO RESET LORE */
+
+let resetTimer=null;
+let fillInterval=null;
+let resetStartedAt=0;
+let resetCompleted=false;
+
+function updateResetDisplay(progress,label){
+ const width=Math.max(
+  0,
+  Math.min(100,progress)
+ )+"%";
+
+ document.getElementById("resetFill1").style.width=width;
+ document.getElementById("resetFill2").style.width=width;
+
+ document.getElementById("resetText1").textContent=label;
+ document.getElementById("resetText2").textContent=label;
+}
+
+function resetButtonDisplay(){
+ updateResetDisplay(0,"Hold To Reset Lore");
+}
+
+function cancelResetHold(){
+ clearTimeout(resetTimer);
+ clearInterval(fillInterval);
+
+ resetTimer=null;
+ fillInterval=null;
+
+ resetButtonDisplay();
+}
+
+function startResetHold(){
+ if(resetTimer!==null||resetCompleted)return;
+
+ resetStartedAt=Date.now();
+ updateResetDisplay(0,"Resetting...");
+
+ fillInterval=setInterval(()=>{
+  const elapsed=Date.now()-resetStartedAt;
+  updateResetDisplay(elapsed/10,"Resetting...");
+ },30);
+
+ resetTimer=setTimeout(async()=>{
+  resetCompleted=true;
+  clearInterval(fillInterval);
+
+  fillInterval=null;
+  resetTimer=null;
+
+  updateResetDisplay(100,"Lore Reset!");
+
+  try{
+   await Promise.all([
+    set(p1Ref,0),
+    set(p2Ref,0)
+   ]);
+  }catch(error){
+   console.error("Unable to reset lore:",error);
+  }
+
+  resetButtonDisplay();
+ },1000);
+}
+
+document.querySelectorAll(".resetLoreBtn")
+ .forEach(button=>{
+  button.addEventListener("pointerdown",event=>{
+   if(event.pointerType==="mouse"&&event.button!==0)return;
+
+   resetCompleted=false;
+
+   if(button.setPointerCapture){
+    button.setPointerCapture(event.pointerId);
+   }
+
+   startResetHold();
+  });
+
+  button.addEventListener("pointerup",cancelResetHold);
+  button.addEventListener("pointercancel",cancelResetHold);
+  button.addEventListener("lostpointercapture",cancelResetHold);
+ });
+
+window.addEventListener("blur",cancelResetHold);
+
+/* GAME WINS */
+
+window.addGameWin=async player=>{
+ const gamesRef=
+  player==="p1"?p1GamesRef:p2GamesRef;
+
+ await runTransaction(gamesRef,current=>{
+  const wins=Number(current)||0;
+
+  return Math.min(2,wins+1);
+ });
+};
+
+window.resetGames=async()=>{
+ await Promise.all([
+  set(p1GamesRef,0),
+  set(p2GamesRef,0)
+ ]);
+};
+
+</script>
+</body>
+</html>

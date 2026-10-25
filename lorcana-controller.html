@@ -1,0 +1,1937 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>TCG Store · Lorcana Tournament Controller</title>
+
+<style>
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  margin: 0;
+  min-height: 100%;
+  background: #0b111a;
+  color: white;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  padding: 12px 12px 30px;
+}
+
+button, input {
+  font-family: inherit;
+}
+
+button {
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 14px;
+}
+
+.header h1 {
+  margin: 5px 0;
+  font-size: 21px;
+  color: #f0c85b;
+}
+
+.subtitle {
+  font-size: 12px;
+  color: #aab5c1;
+}
+
+.status {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #9ca8b8;
+  min-height: 15px;
+  text-align: center;
+}
+
+.status.error {
+  color: #ff9b9b;
+}
+
+/* PLAYER CARDS */
+
+.player {
+  margin-bottom: 13px;
+  border: 2px solid #d6ae4d;
+  border-radius: 14px;
+  padding: 13px;
+  background: linear-gradient(
+    180deg,
+    #213750 0%,
+    #152335 48%,
+    #101a29 100%
+  );
+  box-shadow: 0 4px 18px rgba(0,0,0,.3);
+}
+
+.player.p2 {
+  border-color: #c19e5a;
+  background: linear-gradient(
+    180deg,
+    #302a43 0%,
+    #1c2235 48%,
+    #111827 100%
+  );
+}
+
+.playerHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.playerTitle {
+  font-size: 19px;
+  font-weight: bold;
+  color: #f5cd67;
+}
+
+.loreDisplay {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.loreLabel {
+  font-size: 11px;
+  color: #b9c6d6;
+  font-weight: bold;
+}
+
+.loreNumber {
+  font-size: 38px;
+  line-height: 1;
+  font-weight: 900;
+  color: white;
+  text-shadow: 0 0 10px rgba(50,160,255,.75);
+  min-width: 47px;
+  text-align: center;
+}
+
+.p2 .loreNumber {
+  text-shadow: 0 0 10px rgba(175,100,240,.65);
+}
+
+/* NAMES AND RECORDS */
+
+.infoRow {
+  display: grid;
+  grid-template-columns: minmax(0,1.55fr) minmax(0,1fr);
+  gap: 9px;
+}
+
+.field {
+  min-width: 0;
+}
+
+label {
+  display: block;
+  margin-bottom: 5px;
+  color: #e3c577;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+input {
+  width: 100%;
+  min-width: 0;
+  height: 42px;
+  border: 1px solid #9b824b;
+  border-radius: 8px;
+  padding: 8px;
+  background: #f7f7f7;
+  color: #101820;
+  font-size: 16px;
+}
+
+input:focus {
+  outline: 2px solid #f0c85b;
+}
+
+.recordInput {
+  text-align: center;
+}
+
+/* INK COLORS */
+
+.inkField {
+  margin-top: 11px;
+}
+
+.inkSelectButton {
+  width: 100%;
+  height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  border: 1px solid #b99445;
+  border-radius: 9px;
+  background: #183851;
+  color: #f0c85b;
+  font-size: 15px;
+  font-weight: bold;
+}
+
+.inkSelectButton img {
+  width: 46px;
+  height: 46px;
+  object-fit: contain;
+}
+
+.inkSelectArrow {
+  margin-left: auto;
+  margin-right: 10px;
+  color: #f0c85b;
+  font-size: 20px;
+}
+
+.inkSelectButton:focus-visible,
+.inkImageOption:focus-visible {
+  outline: 3px solid white;
+  outline-offset: 2px;
+}
+
+/* INK POPUP */
+
+.inkModal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(3,7,12,.96);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  padding: 12px;
+}
+
+.inkModal.open {
+  display: flex;
+}
+
+.inkModalBody {
+  width: min(95vw,580px);
+  max-height: 94dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+}
+
+.inkModalTitle {
+  color: #f0c85b;
+  font-weight: 800;
+  text-align: center;
+}
+
+.inkImageGrid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(5,minmax(0,1fr));
+  gap: 7px;
+  max-height: 73dvh;
+  overflow: auto;
+}
+
+.inkImageOption {
+  position: relative;
+  min-width: 0;
+  aspect-ratio: 1;
+  border: 2px solid #53647b;
+  border-radius: 9px;
+  background: #172132;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.inkImageOption img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.inkImageOption.selected {
+  border-color: #f0c85b;
+  box-shadow: 0 0 0 1px #f0c85b;
+}
+
+.inkModalActions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.inkModalAction {
+  padding: 9px 20px;
+  border: 0;
+  border-radius: 8px;
+  background: #444;
+  color: white;
+  font-weight: bold;
+}
+
+.inkModalAction.clear {
+  background: #792e32;
+}
+
+/* GAME AND LORE */
+
+.controlsRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 13px;
+}
+
+.controlLabel {
+  font-size: 11px;
+  font-weight: bold;
+  color: #c9d2dc;
+  margin-bottom: 7px;
+  text-align: center;
+}
+
+.loreButtons {
+  display: flex;
+  gap: 6px;
+}
+
+.loreBtn {
+  flex: 1;
+  height: 48px;
+  border: none;
+  border-radius: 9px;
+  color: white;
+  font-size: 30px;
+  font-weight: bold;
+}
+
+.plusBtn {
+  background: #208343;
+}
+
+.minusBtn {
+  background: #a52b35;
+}
+
+.gameDots {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 9px;
+  height: 17px;
+}
+
+.dot {
+  width: 17px;
+  height: 17px;
+  border: 2px solid #f0c85b;
+  border-radius: 50%;
+  background: transparent;
+}
+
+.gameBtn {
+  width: 100%;
+  height: 48px;
+  border: none;
+  border-radius: 9px;
+  background: #d6af40;
+  color: #111;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+/* MATCH CONTROLS */
+
+.section {
+  margin-top: 13px;
+  padding: 14px;
+  border: 1px solid #b99445;
+  border-radius: 13px;
+  background: #172130;
+}
+
+.sectionTitle {
+  font-size: 17px;
+  font-weight: bold;
+  color: #f0c85b;
+  margin-bottom: 12px;
+}
+
+.resetRow {
+  display: flex;
+  gap: 9px;
+}
+
+.resetBtn {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  height: 48px;
+  border: none;
+  border-radius: 9px;
+  background: #792e32;
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  overflow: hidden;
+  touch-action: none;
+}
+
+.resetBtn.games {
+  background: #4c4f59;
+  touch-action: manipulation;
+}
+
+.resetFill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 0;
+  background: rgba(255,255,255,.3);
+  pointer-events: none;
+}
+
+.resetText {
+  position: relative;
+  z-index: 1;
+}
+
+/* ROUND TIMER */
+
+.timerDisplay {
+  text-align: center;
+  font-size: 43px;
+  font-weight: 900;
+  color: white;
+  margin: 8px 0 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+.timerInputs {
+  display: grid;
+  grid-template-columns: 1fr 105px;
+  gap: 9px;
+}
+
+.timerButtons {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 8px;
+  margin-top: 11px;
+}
+
+.timerBtn {
+  height: 45px;
+  border: none;
+  border-radius: 9px;
+  background: #254d71;
+  color: white;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.timerBtn.start {
+  background: #218044;
+}
+
+.timerBtn.pause {
+  background: #8b5b20;
+}
+
+.timerBtn.reset {
+  background: #713031;
+}
+
+.hint {
+  color: #aeb8c7;
+  text-align: center;
+  font-size: 11px;
+  line-height: 1.4;
+  margin-top: 10px;
+}
+
+/* =========================
+   LEFT PANEL ARTWORK
+   OVERLAYHUB-STYLE GALLERY
+========================= */
+
+.artworkSection {
+  border-color: #b99445;
+}
+
+.artworkDescription {
+  font-size: 12px;
+  color: #b9c9d6;
+  margin-bottom: 12px;
+}
+
+.artworkModes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.artworkMode {
+  height: 43px;
+  border: 1px solid #c39a3e;
+  border-radius: 8px;
+  background: #234563;
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.artworkMode.active {
+  background: #b99a50;
+  color: #080d14;
+}
+
+.cardSearchArea {
+  display: none;
+}
+
+.cardSearchArea.open {
+  display: block;
+}
+
+.cardSearchInput {
+  width: 100%;
+  height: 45px;
+  margin-bottom: 7px;
+  border: 2px solid #c9a444;
+  border-radius: 9px;
+}
+
+.cardSearchBtn {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 9px;
+  background: #d6af40;
+  color: #111;
+  font-weight: bold;
+  font-size: 13px;
+}
+
+.cardSearchBtn:disabled {
+  opacity: .55;
+}
+
+/* COMPACT CARD GALLERY */
+
+.cardResults {
+  display: grid;
+  grid-template-columns:
+    repeat(auto-fill,minmax(88px,1fr));
+  gap: 8px;
+  margin-top: 16px;
+  width: 100%;
+  align-items: start;
+}
+
+.cardChoice {
+  min-width: 0;
+  padding: 5px;
+  border: 2px solid #98762f;
+  border-radius: 8px;
+  background: #0c1929;
+  color: white;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 4px;
+}
+
+.cardChoice:hover {
+  border-color: #f0c85b;
+}
+
+.cardChoice.active {
+  border-color: #f0c85b;
+  box-shadow: 0 0 9px rgba(240,200,91,.55);
+}
+
+.cardChoice img {
+  display: block;
+  width: 100%;
+  height: 119px;
+  object-fit: contain;
+}
+
+.cardChoice span {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  line-clamp: 3;
+  overflow: hidden;
+  width: 100%;
+  font-size: 10px;
+  font-weight: bold;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+.cardSearchStatus {
+  font-size: 12px;
+  text-align: center;
+  color: #b9c9d6;
+  margin-top: 11px;
+  min-height: 17px;
+}
+
+@media(max-width:370px) {
+  .inkImageGrid {
+    gap: 4px;
+  }
+
+  .inkImageOption {
+    padding: 2px;
+  }
+
+  .cardResults {
+    grid-template-columns:
+      repeat(auto-fill,minmax(76px,1fr));
+    gap: 6px;
+  }
+
+  .cardChoice img {
+    height: 106px;
+  }
+}
+
+@media(max-width:360px) {
+  body {
+    padding: 7px;
+  }
+
+  .player {
+    padding: 10px;
+  }
+
+  .controlsRow {
+    gap: 7px;
+  }
+
+  .loreBtn {
+    font-size: 26px;
+  }
+
+  .timerInputs {
+    grid-template-columns: 1fr 90px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+  <h1>LORCANA STREAM CONTROL</h1>
+  <div class="subtitle">Tournament Staff Controller</div>
+  <div id="status" class="status">Connecting...</div>
+</div>
+
+<!-- PLAYER 2 -->
+
+<div class="player p2">
+  <div class="playerHeader">
+    <div class="playerTitle">PLAYER 2</div>
+
+    <div class="loreDisplay">
+      <span class="loreLabel">LORE</span>
+      <span id="p2Lore" class="loreNumber">0</span>
+    </div>
+  </div>
+
+  <div class="infoRow">
+    <div class="field">
+      <label for="p2Name">Player Name</label>
+      <input id="p2Name" placeholder="Player 2">
+    </div>
+
+    <div class="field">
+      <label for="p2Record">W-L-D</label>
+      <input
+        id="p2Record"
+        class="recordInput"
+        placeholder="0-0-0"
+      >
+    </div>
+  </div>
+
+  <div class="inkField">
+    <label for="p2InkButton">Ink Colors</label>
+
+    <button
+      id="p2InkButton"
+      type="button"
+      class="inkSelectButton"
+      aria-haspopup="dialog"
+    >
+      <span id="p2InkPreview">
+        Tap to Choose Ink Colors
+      </span>
+      <span class="inkSelectArrow">⌄</span>
+    </button>
+  </div>
+
+  <div class="controlsRow">
+    <div>
+      <div class="controlLabel">ADJUST LORE</div>
+
+      <div class="loreButtons">
+        <button
+          class="loreBtn minusBtn"
+          onclick="changeLore('p2',-1)"
+        >−</button>
+
+        <button
+          class="loreBtn plusBtn"
+          onclick="changeLore('p2',1)"
+        >+</button>
+      </div>
+    </div>
+
+    <div>
+      <div class="controlLabel">GAME WINS</div>
+
+      <div class="gameDots">
+        <div id="p2g1" class="dot"></div>
+        <div id="p2g2" class="dot"></div>
+      </div>
+
+      <button
+        class="gameBtn"
+        onclick="addGameWin('p2')"
+      >+ Game Win</button>
+    </div>
+  </div>
+</div>
+
+<!-- PLAYER 1 -->
+
+<div class="player p1">
+  <div class="playerHeader">
+    <div class="playerTitle">PLAYER 1</div>
+
+    <div class="loreDisplay">
+      <span class="loreLabel">LORE</span>
+      <span id="p1Lore" class="loreNumber">0</span>
+    </div>
+  </div>
+
+  <div class="infoRow">
+    <div class="field">
+      <label for="p1Name">Player Name</label>
+      <input id="p1Name" placeholder="Player 1">
+    </div>
+
+    <div class="field">
+      <label for="p1Record">W-L-D</label>
+      <input
+        id="p1Record"
+        class="recordInput"
+        placeholder="0-0-0"
+      >
+    </div>
+  </div>
+
+  <div class="inkField">
+    <label for="p1InkButton">Ink Colors</label>
+
+    <button
+      id="p1InkButton"
+      type="button"
+      class="inkSelectButton"
+      aria-haspopup="dialog"
+    >
+      <span id="p1InkPreview">
+        Tap to Choose Ink Colors
+      </span>
+      <span class="inkSelectArrow">⌄</span>
+    </button>
+  </div>
+
+  <div class="controlsRow">
+    <div>
+      <div class="controlLabel">ADJUST LORE</div>
+
+      <div class="loreButtons">
+        <button
+          class="loreBtn minusBtn"
+          onclick="changeLore('p1',-1)"
+        >−</button>
+
+        <button
+          class="loreBtn plusBtn"
+          onclick="changeLore('p1',1)"
+        >+</button>
+      </div>
+    </div>
+
+    <div>
+      <div class="controlLabel">GAME WINS</div>
+
+      <div class="gameDots">
+        <div id="p1g1" class="dot"></div>
+        <div id="p1g2" class="dot"></div>
+      </div>
+
+      <button
+        class="gameBtn"
+        onclick="addGameWin('p1')"
+      >+ Game Win</button>
+    </div>
+  </div>
+</div>
+
+<!-- MATCH CONTROLS -->
+
+<div class="section">
+  <div class="sectionTitle">Match Controls</div>
+
+  <div class="resetRow">
+    <button id="resetLoreBtn" class="resetBtn">
+      <div id="resetLoreFill" class="resetFill"></div>
+      <span class="resetText">Hold: Reset Lore</span>
+    </button>
+
+    <button id="resetGamesBtn" class="resetBtn games">
+      Reset Games
+    </button>
+  </div>
+
+  <div class="hint">
+    Hold Reset Lore for 1.5 seconds.
+    Tap Reset Games once.
+    Names and records save automatically.
+  </div>
+</div>
+
+<!-- ROUND TIMER -->
+
+<div class="section">
+  <div class="sectionTitle">Round Timer</div>
+
+  <div class="timerInputs">
+    <div>
+      <label for="roundInput">Round Name</label>
+      <input
+        id="roundInput"
+        type="text"
+        placeholder="Round 1"
+        enterkeyhint="done"
+      >
+    </div>
+
+    <div>
+      <label for="minutesInput">Minutes</label>
+      <input
+        id="minutesInput"
+        type="number"
+        min="0"
+        max="999"
+        step="1"
+        value="60"
+        enterkeyhint="done"
+      >
+    </div>
+  </div>
+
+  <div id="timerDisplay" class="timerDisplay">
+    60:00
+  </div>
+
+  <div class="timerButtons">
+    <button id="startTimer" class="timerBtn start">
+      Start
+    </button>
+
+    <button id="pauseTimer" class="timerBtn pause">
+      Pause
+    </button>
+
+    <button id="resetTimer" class="timerBtn reset">
+      Reset
+    </button>
+  </div>
+
+  <div class="hint">
+    Enter minutes and press Done to set the timer.
+    The countdown will stay paused until you press Start.
+  </div>
+</div>
+
+<!-- LEFT PANEL ARTWORK -->
+
+<div class="section artworkSection">
+  <div class="sectionTitle">Left Panel Artwork</div>
+
+  <div class="artworkDescription">
+    Choose a featured Lorcana card or leave the left gold panel empty.
+  </div>
+
+  <div class="artworkModes">
+    <button
+      id="artworkEmpty"
+      class="artworkMode active"
+      type="button"
+    >Empty</button>
+
+    <button
+      id="artworkCard"
+      class="artworkMode"
+      type="button"
+    >Lorcana Card</button>
+  </div>
+
+  <div id="cardSearchArea" class="cardSearchArea">
+    <input
+      id="cardSearchInput"
+      class="cardSearchInput"
+      type="search"
+      placeholder="Search for a Lorcana card"
+      enterkeyhint="search"
+      maxlength="70"
+    >
+
+    <button
+      id="cardSearchButton"
+      class="cardSearchBtn"
+      type="button"
+    >Search Cards</button>
+
+    <div id="cardSearchResults" class="cardResults"></div>
+
+    <div
+      id="cardSearchStatus"
+      class="cardSearchStatus"
+    >Enter a card name to search.</div>
+  </div>
+</div>
+
+<!-- INK SELECTION POPUP -->
+
+<div
+  id="inkModal"
+  class="inkModal"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Choose Ink Colors"
+>
+  <div class="inkModalBody">
+    <div id="inkModalTitle" class="inkModalTitle">
+      Choose Ink Colors
+    </div>
+
+    <div id="inkImageGrid" class="inkImageGrid"></div>
+
+    <div class="inkModalActions">
+      <button
+        id="inkClear"
+        type="button"
+        class="inkModalAction clear"
+      >Clear</button>
+
+      <button
+        id="inkCancel"
+        type="button"
+        class="inkModalAction"
+      >Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+
+import {db,ref,onValue,set,update,runTransaction,requireLogin} from './firebase.js';
+await requireLogin();
+
+
+const $ = id => document.getElementById(id);
+
+function setStatus(message,error=false) {
+  $("status").textContent = message;
+  $("status").classList.toggle("error",error);
+}
+
+/* INK COMBINATIONS */
+
+const INK_IMAGE_BASE =
+  "./Ink%20combinations/";
+
+const inkOptions = [
+  ["amber amethyst.png","Amber / Amethyst",["amber","amethyst"]],
+  ["amber emerald.png","Amber / Emerald",["amber","emerald"]],
+  ["amber sapphire.png","Amber / Sapphire",["amber","sapphire"]],
+  ["amber steel.png","Amber / Steel",["amber","steel"]],
+  ["amethyst emerald.png","Amethyst / Emerald",["amethyst","emerald"]],
+  ["amethyst ruby.png","Amethyst / Ruby",["amethyst","ruby"]],
+  ["amethyst sapphire.png","Amethyst / Sapphire",["amethyst","sapphire"]],
+  ["amethyst steel.png","Amethyst / Steel",["amethyst","steel"]],
+  ["blue steel 1.png","Sapphire / Steel",["sapphire","steel"]],
+  ["emerald ruby.png","Emerald / Ruby",["emerald","ruby"]],
+  ["emerald sapphire.png","Emerald / Sapphire",["emerald","sapphire"]],
+  ["green steel.png","Emerald / Steel",["emerald","steel"]],
+  ["ruby amber.png","Ruby / Amber",["ruby","amber"]],
+  ["ruby sapphire.png","Ruby / Sapphire",["ruby","sapphire"]],
+  ["ruby steel.png","Ruby / Steel",["ruby","steel"]]
+];
+
+const inkByFile = new Map(
+  inkOptions.map(option => [option[0],option])
+);
+
+const selectedInks = {
+  p1: "",
+  p2: ""
+};
+
+const latestInkFiles = {
+  p1: "",
+  p2: ""
+};
+
+const latestInkPairs = {
+  p1: null,
+  p2: null
+};
+
+let activeInkPlayer = null;
+
+const inkModal = $("inkModal");
+const inkImageGrid = $("inkImageGrid");
+
+function validPair(value) {
+  return Array.isArray(value) &&
+    value.length === 2 &&
+    value[0] !== value[1] &&
+    value.every(color => typeof color === "string");
+}
+
+function fileForPair(value) {
+  if(!validPair(value)) return "";
+
+  const option = inkOptions.find(([, , pair]) =>
+    pair.includes(value[0]) &&
+    pair.includes(value[1])
+  );
+
+  return option ? option[0] : "";
+}
+
+function renderInkSelection(player,filename) {
+  const chosen = inkByFile.has(filename) ? filename : "";
+
+  selectedInks[player] = chosen;
+
+  const preview = $(player+"InkPreview");
+  const option = inkByFile.get(chosen);
+
+  preview.replaceChildren();
+
+  if(option) {
+    const image = document.createElement("img");
+
+    image.src =
+      INK_IMAGE_BASE + encodeURIComponent(chosen);
+
+    image.alt = option[1];
+
+    const text = document.createElement("span");
+    text.textContent = option[1];
+
+    preview.appendChild(image);
+    preview.appendChild(text);
+  } else {
+    preview.textContent = "Tap to Choose Ink Colors";
+  }
+
+  if(activeInkPlayer === player) {
+    refreshInkModalSelection();
+  }
+}
+
+function refreshInkModalSelection() {
+  const selected =
+    activeInkPlayer ? selectedInks[activeInkPlayer] : "";
+
+  inkImageGrid.querySelectorAll(".inkImageOption")
+    .forEach(button => {
+      const active = button.dataset.file === selected;
+
+      button.classList.toggle("selected",active);
+      button.setAttribute("aria-pressed",String(active));
+    });
+}
+
+function closeInkModal() {
+  inkModal.classList.remove("open");
+  activeInkPlayer = null;
+}
+
+function openInkModal(player) {
+  activeInkPlayer = player;
+
+  $("inkModalTitle").textContent =
+    (player === "p1" ? "Player 1" : "Player 2") +
+    " — Choose Ink Colors";
+
+  refreshInkModalSelection();
+  inkModal.classList.add("open");
+}
+
+async function chooseInk(player,filename) {
+  const option = inkByFile.get(filename);
+
+  if(filename && !option) return;
+
+  const changes = {};
+
+  changes[player+"Ink"] = filename;
+  changes[player+"Inks"] =
+    option ? option[2] : [];
+
+  try {
+    await update(ref(db),changes);
+
+    setStatus(
+      option
+        ? option[1]+" saved"
+        : "Ink colors cleared"
+    );
+  } catch(error) {
+    setStatus("Could not save ink colors",true);
+  }
+}
+
+function setupInkGallery(player) {
+  $(player+"InkButton").addEventListener(
+    "click",
+    () => openInkModal(player)
+  );
+
+  onValue(ref(db,player+"Ink"),snapshot => {
+    latestInkFiles[player] = snapshot.val() || "";
+
+    if(latestInkPairs[player] === null) {
+      renderInkSelection(
+        player,
+        latestInkFiles[player]
+      );
+    }
+  },() => setStatus("Ink sync error",true));
+
+  onValue(ref(db,player+"Inks"),snapshot => {
+    const pair = snapshot.val();
+
+    if(validPair(pair)) {
+      latestInkPairs[player] = pair;
+      renderInkSelection(player,fileForPair(pair));
+    } else if(Array.isArray(pair)) {
+      latestInkPairs[player] = [];
+      renderInkSelection(player,latestInkFiles[player]);
+    } else {
+      latestInkPairs[player] = null;
+      renderInkSelection(player,latestInkFiles[player]);
+    }
+  },() => setStatus("Ink sync error",true));
+}
+
+/* CREATE INK POPUP BUTTONS */
+
+for(const [filename,label] of inkOptions) {
+  const button = document.createElement("button");
+
+  button.type = "button";
+  button.className = "inkImageOption";
+  button.dataset.file = filename;
+  button.setAttribute("aria-label",label);
+  button.setAttribute("aria-pressed","false");
+
+  const image = document.createElement("img");
+
+  image.src =
+    INK_IMAGE_BASE + encodeURIComponent(filename);
+
+  image.alt = label;
+  image.loading = "lazy";
+
+  button.appendChild(image);
+
+  button.addEventListener("click",() => {
+    const player = activeInkPlayer;
+
+    closeInkModal();
+
+    if(player) {
+      chooseInk(player,filename);
+    }
+  });
+
+  inkImageGrid.appendChild(button);
+}
+
+$("inkClear").addEventListener("click",() => {
+  const player = activeInkPlayer;
+  closeInkModal();
+
+  if(player) chooseInk(player,"");
+});
+
+$("inkCancel").addEventListener(
+  "click",
+  closeInkModal
+);
+
+inkModal.addEventListener("click",event => {
+  if(event.target === inkModal) closeInkModal();
+});
+
+document.addEventListener("keydown",event => {
+  if(event.key === "Escape") closeInkModal();
+});
+
+/* =========================
+   FEATURED CARD ARTWORK
+========================= */
+
+const featuredRef = ref(db,"featuredDisplay");
+
+const artworkEmpty = $("artworkEmpty");
+const artworkCard = $("artworkCard");
+const cardSearchArea = $("cardSearchArea");
+const cardSearchInput = $("cardSearchInput");
+const cardSearchButton = $("cardSearchButton");
+const cardSearchResults = $("cardSearchResults");
+const cardSearchStatus = $("cardSearchStatus");
+
+let featuredCardUrl = "";
+let featuredMode = "empty";
+let searchCounter = 0;
+
+function validCardUrl(value) {
+  try {
+    const url = new URL(value);
+
+    return url.protocol === "https:" &&
+      url.hostname === "cards.lorcast.io" &&
+      url.pathname.startsWith("/card/");
+  } catch(error) {
+    return false;
+  }
+}
+
+function setCardSearchStatus(message,error=false) {
+  cardSearchStatus.textContent = message;
+  cardSearchStatus.style.color =
+    error ? "#ff9b9b" : "#b9c9d6";
+}
+
+function updateArtworkMode(mode) {
+  featuredMode = mode === "card" ? "card" : "empty";
+
+  const isCard = featuredMode === "card";
+
+  artworkEmpty.classList.toggle("active",!isCard);
+  artworkCard.classList.toggle("active",isCard);
+
+  cardSearchArea.classList.toggle("open",isCard);
+
+  artworkEmpty.setAttribute(
+    "aria-pressed",
+    String(!isCard)
+  );
+
+  artworkCard.setAttribute(
+    "aria-pressed",
+    String(isCard)
+  );
+}
+
+function updateSelectedCard() {
+  cardSearchResults.querySelectorAll(".cardChoice")
+    .forEach(button => {
+      const active =
+        featuredMode === "card" &&
+        button.dataset.url === featuredCardUrl;
+
+      button.classList.toggle("active",active);
+      button.setAttribute("aria-pressed",String(active));
+    });
+}
+
+onValue(featuredRef,snapshot => {
+  const value = snapshot.val();
+
+  if(
+    value &&
+    value.mode === "card" &&
+    validCardUrl(value.cardUrl)
+  ) {
+    featuredCardUrl = value.cardUrl;
+    updateArtworkMode("card");
+  } else {
+    featuredCardUrl = "";
+    updateArtworkMode("empty");
+  }
+
+  updateSelectedCard();
+},() => {
+  setCardSearchStatus(
+    "Unable to read selected card from Firebase.",
+    true
+  );
+});
+
+async function saveFeaturedCard(url) {
+  if(url && !validCardUrl(url)) return;
+
+  try {
+    await set(
+      featuredRef,
+      url
+        ? {mode:"card",cardUrl:url}
+        : {mode:"empty"}
+    );
+
+    setStatus(
+      url
+        ? "Featured card saved"
+        : "Featured card cleared"
+    );
+
+    if(url) {
+      setCardSearchStatus(
+        "Card selected — displaying on the overlay."
+      );
+    }
+  } catch(error) {
+    setCardSearchStatus(
+      "Could not save featured card.",
+      true
+    );
+
+    setStatus("Card save failed",true);
+  }
+}
+
+/* EMPTY OPTION */
+
+artworkEmpty.addEventListener("click",async () => {
+  await saveFeaturedCard("");
+});
+
+/* LORCANA CARD OPTION */
+
+artworkCard.addEventListener("click",() => {
+  updateArtworkMode("card");
+
+  if(!featuredCardUrl) {
+    setCardSearchStatus(
+      "Search for a card and tap it to display."
+    );
+  }
+});
+
+/* SEARCH CARDS */
+
+async function searchCards() {
+  const query = cardSearchInput.value.trim();
+
+  if(query.length < 2) {
+    setCardSearchStatus(
+      "Enter at least two characters.",
+      true
+    );
+    return;
+  }
+
+  const requestId = ++searchCounter;
+
+  cardSearchButton.disabled = true;
+  cardSearchResults.replaceChildren();
+
+  setCardSearchStatus("Searching Lorcana cards...");
+
+  try {
+    const url = new URL(
+      "https://api.lorcast.com/v0/cards/search"
+    );
+
+    url.searchParams.set("q",query);
+    url.searchParams.set("unique","cards");
+
+    const response = await fetch(
+      url.toString(),
+      {mode:"cors"}
+    );
+
+    if(!response.ok) {
+      throw new Error(
+        "Card search returned HTTP " +
+        response.status
+      );
+    }
+
+    const payload = await response.json();
+
+    if(requestId !== searchCounter) return;
+
+    const cards = (
+      Array.isArray(payload.results)
+        ? payload.results
+        : []
+    ).filter(card => {
+      const images = card.image_uris?.digital;
+
+      return validCardUrl(
+        images?.normal || images?.large || ""
+      );
+    });
+
+    for(const card of cards) {
+      const imageUrl =
+        card.image_uris.digital.normal ||
+        card.image_uris.digital.large;
+
+      const imageThumb =
+        card.image_uris.digital.small ||
+        imageUrl;
+
+      const button = document.createElement("button");
+
+      button.type = "button";
+      button.className = "cardChoice";
+      button.dataset.url = imageUrl;
+      button.setAttribute("aria-pressed","false");
+
+      button.title = [
+        card.name,
+        card.version,
+        card.set?.name
+      ].filter(Boolean).join(" — ");
+
+      const image = document.createElement("img");
+
+      image.src = imageThumb;
+      image.alt = card.name || "Lorcana card";
+      image.loading = "lazy";
+
+      const label = document.createElement("span");
+
+      label.textContent = [
+        card.name,
+        card.version
+      ].filter(Boolean).join(" — ");
+
+      button.append(image,label);
+
+      button.addEventListener("click",() => {
+        saveFeaturedCard(imageUrl);
+      });
+
+      cardSearchResults.appendChild(button);
+    }
+
+    updateSelectedCard();
+
+    setCardSearchStatus(
+      cards.length
+        ? cards.length +
+          " cards found — tap a card to display it."
+        : "No matching cards found."
+    );
+
+  } catch(error) {
+    if(requestId !== searchCounter) return;
+
+    console.error("Lorcast search failed:",error);
+
+    setCardSearchStatus(
+      "Card search couldn't load. Check your connection or browser access settings.",
+      true
+    );
+
+  } finally {
+    if(requestId === searchCounter) {
+      cardSearchButton.disabled = false;
+    }
+  }
+}
+
+cardSearchButton.addEventListener(
+  "click",
+  searchCards
+);
+
+cardSearchInput.addEventListener("keydown",event => {
+  if(event.key === "Enter") {
+    event.preventDefault();
+    searchCards();
+  }
+});
+
+/* =========================
+   EXISTING STAFF CONTROLS
+========================= */
+
+/* SAVE HELPER */
+
+async function save(path,value) {
+  try {
+    await set(ref(db,path),value);
+    setStatus("Saved");
+    return true;
+  } catch(error) {
+    setStatus(
+      "Save failed. Check connection.",
+      true
+    );
+    return false;
+  }
+}
+
+/* NAMES AND RECORDS */
+
+const recordPattern = /^\d{1,3}-\d{1,3}-\d{1,3}$/;
+
+function setupTextField(player,type,fallback) {
+  const id = player+type;
+  const input = $(id);
+
+  let saved = fallback;
+  let editing = false;
+  let pending = false;
+
+  onValue(ref(db,id),snapshot => {
+    saved =
+      String(snapshot.val() ?? "").trim() ||
+      fallback;
+
+    if(!editing && !pending) {
+      input.value = saved;
+    }
+
+    setStatus("Connected");
+  },() => {
+    setStatus("Firebase connection error",true);
+  });
+
+  input.addEventListener("focus",() => {
+    editing = true;
+  });
+
+  async function commit() {
+    editing = false;
+
+    let value = input.value.trim() || fallback;
+
+    if(type === "Record" &&
+       !recordPattern.test(value)) {
+      input.value = saved;
+      setStatus("Record format: 3-0-1",true);
+      return;
+    }
+
+    input.value = value;
+
+    if(value === saved) return;
+
+    pending = true;
+    const ok = await save(id,value);
+    pending = false;
+
+    if(!ok) {
+      input.value = saved;
+    }
+  }
+
+  input.addEventListener("blur",commit);
+
+  input.addEventListener("keydown",event => {
+    if(event.key === "Enter") {
+      event.preventDefault();
+      input.blur();
+    }
+  });
+}
+
+/* LIVE PLAYER DATA */
+
+for(const player of ["p2","p1"]) {
+  setupTextField(
+    player,
+    "Name",
+    player === "p1" ? "Player 1" : "Player 2"
+  );
+
+  setupTextField(player,"Record","0-0-0");
+  setupInkGallery(player);
+
+  onValue(ref(db,player),snapshot => {
+    const lore = Math.max(
+      0,
+      Math.min(20,Number(snapshot.val()) || 0)
+    );
+
+    $(player+"Lore").textContent = lore;
+  });
+
+  onValue(ref(db,player+"Games"),snapshot => {
+    const wins = Math.max(
+      0,
+      Math.min(2,Number(snapshot.val()) || 0)
+    );
+
+    for(let i=1;i<=2;i++) {
+      $(player+"g"+i).style.background =
+        wins >= i ? "#f0c85b" : "transparent";
+    }
+  });
+}
+
+/* LORE BUTTONS */
+
+window.changeLore = async (player,change) => {
+  try {
+    await runTransaction(
+      ref(db,player),
+      current => {
+        const lore = Number(current) || 0;
+
+        return Math.max(
+          0,
+          Math.min(20,lore+change)
+        );
+      }
+    );
+  } catch(error) {
+    setStatus("Could not update lore",true);
+  }
+};
+
+/* GAME WINS */
+
+window.addGameWin = async player => {
+  try {
+    await runTransaction(
+      ref(db,player+"Games"),
+      current => {
+        const wins = Number(current) || 0;
+        return Math.min(2,wins+1);
+      }
+    );
+  } catch(error) {
+    setStatus("Could not add game win",true);
+  }
+};
+
+/* RESET LORE */
+
+async function resetLore() {
+  try {
+    await update(ref(db),{
+      p1:0,
+      p2:0
+    });
+
+    setStatus("Lore reset");
+  } catch(error) {
+    setStatus("Lore reset failed",true);
+  }
+}
+
+/* RESET GAMES */
+
+async function resetGames() {
+  try {
+    await update(ref(db),{
+      p1Games:0,
+      p2Games:0
+    });
+
+    setStatus("Game wins reset");
+  } catch(error) {
+    setStatus("Game reset failed",true);
+  }
+}
+
+/* HOLD TO RESET LORE */
+
+function setupHold(buttonId,fillId,action) {
+  const button = $(buttonId);
+  const fill = $(fillId);
+
+  let active = false;
+  let timer = null;
+
+  function cancel() {
+    if(!active) return;
+
+    active = false;
+    clearTimeout(timer);
+
+    fill.style.transition = "none";
+    fill.style.width = "0%";
+  }
+
+  button.addEventListener("pointerdown",event => {
+    if(active) return;
+
+    if(event.button !== undefined &&
+       event.button !== 0) return;
+
+    active = true;
+
+    fill.style.transition = "none";
+    fill.style.width = "0%";
+
+    button.setPointerCapture(event.pointerId);
+
+    requestAnimationFrame(() => {
+      if(active) {
+        fill.style.transition =
+          "width 1.5s linear";
+
+        fill.style.width = "100%";
+      }
+    });
+
+    timer = setTimeout(() => {
+      if(!active) return;
+
+      cancel();
+      action();
+    },1500);
+  });
+
+  button.addEventListener("pointerup",cancel);
+  button.addEventListener("pointercancel",cancel);
+  button.addEventListener("lostpointercapture",cancel);
+
+  button.addEventListener(
+    "contextmenu",
+    event => event.preventDefault()
+  );
+}
+
+setupHold(
+  "resetLoreBtn",
+  "resetLoreFill",
+  resetLore
+);
+
+/* RESET GAMES — SINGLE TAP */
+
+$("resetGamesBtn").addEventListener(
+  "click",
+  resetGames
+);
+
+/* ROUND TIMER */
+
+const DEFAULT_SECONDS = 3600;
+
+let timerState = {
+  roundName:"Round 1",
+  remaining:DEFAULT_SECONDS,
+  running:false,
+  startedAt:0
+};
+
+const timerRef = ref(db,"timer");
+
+function currentRemaining() {
+  const base = Math.max(
+    0,
+    Number(timerState.remaining) || 0
+  );
+
+  const startedAt =
+    Number(timerState.startedAt) || 0;
+
+  const elapsed =
+    timerState.running && startedAt > 0
+      ? Math.max(
+          0,
+          Math.floor(
+            (Date.now()-startedAt)/1000
+          )
+        )
+      : 0;
+
+  return Math.max(0,Math.floor(base-elapsed));
+}
+
+function formatTime(seconds) {
+  const safe = Math.max(0,Math.floor(seconds));
+  const minutes = Math.floor(safe/60);
+  const secs = safe%60;
+
+  return minutes+":"+String(secs).padStart(2,"0");
+}
+
+function renderTimer() {
+  $("timerDisplay").textContent =
+    formatTime(currentRemaining());
+
+  if(document.activeElement !== $("roundInput")) {
+    $("roundInput").value =
+      timerState.roundName || "Round 1";
+  }
+}
+
+onValue(timerRef,snapshot => {
+  timerState = snapshot.val() || {
+    roundName:"Round 1",
+    remaining:DEFAULT_SECONDS,
+    running:false,
+    startedAt:0
+  };
+
+  renderTimer();
+},() => {
+  setStatus("Timer connection error",true);
+});
+
+setInterval(renderTimer,250);
+renderTimer();
+
+/* ROUND NAME */
+
+$("roundInput").addEventListener("blur",async () => {
+  const name =
+    $("roundInput").value.trim() || "Round 1";
+
+  try {
+    await update(timerRef,{roundName:name});
+  } catch(error) {
+    setStatus("Could not save round name",true);
+  }
+});
+
+$("roundInput").addEventListener("keydown",event => {
+  if(event.key==="Enter") {
+    event.preventDefault();
+    $("roundInput").blur();
+  }
+});
+
+/* SET MINUTES */
+
+async function applyMinutes() {
+  const entered = Number($("minutesInput").value);
+
+  const minutes = Number.isFinite(entered)
+    ? Math.max(0,Math.min(999,Math.floor(entered)))
+    : 60;
+
+  $("minutesInput").value = minutes;
+
+  try {
+    await update(timerRef,{
+      roundName:
+        $("roundInput").value.trim() || "Round 1",
+      remaining:minutes*60,
+      running:false,
+      startedAt:0
+    });
+
+    setStatus(
+      "Timer set to "+formatTime(minutes*60)
+    );
+  } catch(error) {
+    setStatus("Could not set timer",true);
+  }
+}
+
+$("minutesInput").addEventListener("keydown",event => {
+  if(event.key==="Enter") {
+    event.preventDefault();
+    applyMinutes();
+    $("minutesInput").blur();
+  }
+});
+
+$("minutesInput").addEventListener("change",() => {
+  applyMinutes();
+});
+
+/* START TIMER */
+
+$("startTimer").addEventListener("click",async () => {
+  if(timerState.running) return;
+
+  const remaining = currentRemaining();
+
+  if(remaining<=0) {
+    setStatus("Timer is at 0:00. Set minutes first.");
+    return;
+  }
+
+  try {
+    await update(timerRef,{
+      roundName:
+        $("roundInput").value.trim() || "Round 1",
+      remaining,
+      running:true,
+      startedAt:Date.now()
+    });
+
+    setStatus("Timer started");
+  } catch(error) {
+    setStatus("Could not start timer",true);
+  }
+});
+
+/* PAUSE TIMER */
+
+$("pauseTimer").addEventListener("click",async () => {
+  if(!timerState.running) return;
+
+  try {
+    await update(timerRef,{
+      remaining:currentRemaining(),
+      running:false,
+      startedAt:0
+    });
+
+    setStatus("Timer paused");
+  } catch(error) {
+    setStatus("Could not pause timer",true);
+  }
+});
+
+/* RESET TIMER */
+
+$("resetTimer").addEventListener("click",async () => {
+  await applyMinutes();
+});
+
+</script>
+</body>
+</html>

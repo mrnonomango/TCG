@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>One Piece Leader Picker — TCG Store</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#071828;color:white;font-family:Arial,sans-serif;padding:16px}
+main{max-width:930px;margin:auto}h1{color:#63b7ed;font-size:23px;margin:4px 0}p{color:#a7c1d2}
+input{width:100%;padding:14px;font-size:17px;border:2px solid #30668c;background:#112a41;color:white;border-radius:9px}
+.toolbar{display:flex;gap:10px;align-items:center;margin:14px 0;flex-wrap:wrap}
+button{cursor:pointer}.toolbar button{padding:10px 14px;border:1px solid #416f8f;color:white;background:#183b58;border-radius:8px}
+#cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(125px,1fr));gap:13px;margin-top:16px}
+.card{min-width:0;background:#102940;border:2px solid #285776;border-radius:10px;padding:7px;text-align:left;color:white;cursor:pointer}
+.card:hover,.card:focus-visible{border-color:#7acfff}.card img{width:100%;aspect-ratio:488/681;object-fit:contain;border-radius:5px}
+.card strong{display:block;font-size:12px;margin-top:6px;overflow-wrap:anywhere}.card small{display:block;color:#a9cadc;margin-top:3px}
+#message{color:#d0dce6}#selection{position:sticky;bottom:0;padding:12px;background:#0c2740eF;border:1px solid #4e9bd0;border-radius:10px;display:none;margin-top:14px}
+#selection img{width:65px;height:90px;object-fit:contain;float:left;margin-right:12px}#selection button{background:#297eae;color:white;border:0;border-radius:8px;padding:9px 16px;font-weight:700}
+</style></head><body><main><h1>Choose Your One Piece Leader</h1><p>Search the available English Leader card catalog and alternate artworks. One tap selects your card.</p>
+<input id="search" placeholder="Search Leader name or card ID" aria-label="Search One Piece Leaders" autocomplete="off">
+<div class="toolbar"><span id="message">Loading Leader cards…</span><button id="retry" hidden>Retry</button></div>
+<div id="cards"></div>
+<div id="selection"><img id="selectedImage" alt=""><strong id="selectedName"></strong><p id="selectedId"></p><button id="chooseAgain">Choose another Leader</button></div>
+</main><script>
+"use strict";
+const source="https://raw.githubusercontent.com/lorenzozulli/optcg_leaders_list/main/leaders.json";
+const $=id=>document.getElementById(id);let cards=[];
+function proxyImage(url){try{const u=new URL(url);if(u.hostname!=="en.onepiece-cardgame.com")return url;const file=u.pathname.split("/").pop();if(!/^[a-zA-Z0-9_-]+\.png$/.test(file))return url;return "https://optcg-api.arjunbansal-ai.workers.dev/images/"+encodeURIComponent(file.slice(0,-4));}catch(_){return url;}}
+function results(){const q=$("search").value.trim().toLowerCase(),list=cards.filter(c=>(c.name+" "+c.id).toLowerCase().includes(q));$("message").textContent=list.length+" Leader artwork"+(list.length===1?"":"s")+" found";$("cards").replaceChildren();for(const card of list.slice(0,250)){const b=document.createElement("button");b.className="card";const img=document.createElement("img");img.loading="lazy";img.referrerPolicy="no-referrer";img.src=proxyImage(card.image);img.dataset.fallback=card.image;img.onerror=()=>{if(img.dataset.fallback){img.src=img.dataset.fallback;img.dataset.fallback="";}else{img.alt=card.name+" (image unavailable)";}};img.alt=card.name;const label=document.createElement("strong");label.textContent=card.name;const detail=document.createElement("small");detail.textContent=card.id+(card.alt?" · Alternate art":"");b.append(img,label,detail);b.onclick=()=>choose(card);$("cards").append(b);}}
+function choose(card){$("selectedImage").src=proxyImage(card.image);$("selectedImage").onerror=()=>{$("selectedImage").onerror=null;$("selectedImage").src=card.image;};$("selectedName").textContent=card.name;$("selectedId").textContent=card.id+(card.alt?" · Alternate art":"");$("selection").style.display="block";$("cards").style.display="none";$("search").style.display="none";$("message").textContent="Selected Leader";window.parent?.postMessage({type:"tcgstore:onepiece-leader-selected",card:{name:card.name,id:card.id,image:card.image}},location.origin);}
+$("chooseAgain").onclick=()=>{$("selection").style.display="none";$("cards").style.display="grid";$("search").style.display="block";results()};
+$("search").addEventListener("input",results);
+async function load(){try{$("retry").hidden=true;const response=await fetch(source,{cache:"no-cache"});if(!response.ok)throw Error("Card catalog unavailable");const body=await response.json();if(!Array.isArray(body.data))throw Error("Unexpected card format");cards=body.data.flatMap(c=>{const main=c.images?.image_en,alt=Array.isArray(c.images?.images_alt)?c.images.images_alt:[];return [main,...alt].filter(u=>typeof u==="string"&&u.startsWith("https://")).map((image,index)=>({name:c.name||c.id,id:c.id,image,alt:index>0}));});results()}catch(e){$("message").textContent="Unable to load card catalog right now.";$("retry").hidden=false;}}
+$("retry").onclick=load;load();
+</script></body></html>

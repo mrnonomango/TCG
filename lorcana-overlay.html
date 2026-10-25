@@ -1,0 +1,965 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TCG Store · Lorcana Tournament Overlay</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: transparent;
+  font-family: Arial, sans-serif;
+}
+
+#viewport {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1920px;
+  height: 1080px;
+  background: transparent;
+  transform-origin: top left;
+}
+
+/* =========================
+   320PX SIDE LAYOUT
+========================= */
+
+.side {
+  position: absolute;
+  top: 0;
+  width: 320px;
+  height: 1080px;
+  display: flex;
+}
+
+.side.left {
+  left: 0;
+}
+
+.side.right {
+  right: 0;
+}
+
+/* =========================
+   GOLD PLAYER PANELS
+========================= */
+
+.panel {
+  position: relative;
+  width: 240px;
+  height: 1080px;
+  flex-shrink: 0;
+  overflow: hidden;
+
+  border: 2px solid #f8dc82;
+
+  background:
+    radial-gradient(
+      circle at 50% 88%,
+      rgba(255,238,170,.20),
+      transparent 32%
+    ),
+    radial-gradient(
+      circle at 50% 100%,
+      rgba(255,204,70,.18),
+      transparent 45%
+    ),
+    linear-gradient(
+      180deg,
+      #f9d66d 0%,
+      #f3c44f 32%,
+      #eeb43a 68%,
+      #d99724 100%
+    );
+
+  box-shadow:
+    inset 0 0 30px rgba(255,245,190,.12),
+    inset 0 0 70px rgba(128,75,0,.18),
+    0 0 8px rgba(255,210,90,.18);
+}
+
+.panel::before {
+  content: "";
+  position: absolute;
+  inset: 9px;
+  border: 1px solid rgba(255,243,190,.5);
+  pointer-events: none;
+}
+
+/* =========================
+   VERTICAL LORE TRACKERS
+========================= */
+
+.track {
+  position: relative;
+  width: 80px;
+  height: 1080px;
+  flex-shrink: 0;
+
+  border-left: 2px solid #f0c85b;
+  border-right: 2px solid #f0c85b;
+
+  background:
+    radial-gradient(
+      circle at 50% 50%,
+      rgba(55,145,210,.18),
+      transparent 58%
+    ),
+    linear-gradient(
+      180deg,
+      #214d78,
+      #123150 34%,
+      #0b1e32 68%,
+      #050c15
+    );
+
+  box-shadow:
+    inset 0 0 20px rgba(55,145,210,.12),
+    inset 0 0 45px rgba(0,0,0,.9);
+}
+
+.track::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 7px;
+  right: 7px;
+
+  border-left: 1px solid rgba(240,200,91,.55);
+  border-right: 1px solid rgba(240,200,91,.55);
+
+  pointer-events: none;
+}
+
+/* LORE POSITIONING */
+
+.markers {
+  position: absolute;
+  top: 30px;
+  bottom: 30px;
+  left: 0;
+  right: 0;
+}
+
+.marker {
+  position: absolute;
+  left: 50%;
+  width: 44px;
+  height: 44px;
+
+  transform: translate(-50%,-50%);
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background:
+    radial-gradient(
+      circle at 30% 30%,
+      #16324b,
+      #0b1c2d 56%,
+      #040a11
+    );
+
+  border: 3px solid #c9962d;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+
+  text-shadow:
+    0 1px 3px rgba(0,0,0,.95);
+
+  box-shadow:
+    inset 0 0 8px rgba(65,165,225,.08),
+    0 0 3px rgba(240,200,91,.10);
+}
+
+/* COMPLETED LORE */
+
+.marker.lit {
+  background:
+    radial-gradient(
+      circle at 30% 30%,
+      #245f8f,
+      #123b61 48%,
+      #09243e 72%,
+      #030b14
+    );
+
+  border-color: #e1b447;
+
+  box-shadow:
+    0 0 6px rgba(218,170,55,.2),
+    inset 0 0 12px rgba(70,180,235,.18);
+}
+
+/* ACTIVE LORE - 1.40X */
+
+.marker.current {
+  z-index: 5;
+
+  transform:
+    translate(-50%,-50%) scale(1.40);
+
+  background:
+    radial-gradient(
+      circle at 30% 30%,
+      #fffdf1 0%,
+      #ffe9a0 20%,
+      #e8b83f 40%,
+      #2d8dbd 58%,
+      #0c4269 75%,
+      #03101e 100%
+    );
+
+  border: 4px solid #dffcff;
+  color: white;
+
+  text-shadow:
+    0 1px 3px rgba(0,0,0,.95);
+
+  animation: lorePulse 1.2s infinite;
+}
+
+@keyframes lorePulse {
+  0%, 100% {
+    box-shadow:
+      0 0 10px rgba(235,255,255,1),
+      0 0 22px rgba(140,245,255,.95),
+      0 0 42px rgba(50,205,255,.85),
+      0 0 68px rgba(0,135,255,.55),
+      inset 0 0 14px rgba(230,255,255,.7);
+  }
+
+  50% {
+    box-shadow:
+      0 0 16px #fff,
+      0 0 34px #affaff,
+      0 0 60px rgba(75,220,255,.95),
+      0 0 92px rgba(0,145,255,.72),
+      inset 0 0 20px rgba(235,255,255,.9);
+  }
+}
+
+/* =========================
+   PLAYER INFORMATION
+========================= */
+
+.player-info {
+  position: absolute;
+  top: 296px;
+  left: 9px;
+  right: 9px;
+
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: 55px 32px 108px 105px;
+  row-gap: 15px;
+
+  align-items: center;
+  justify-items: center;
+  text-align: center;
+}
+
+.player-name {
+  width: 100%;
+  font-size: 25px;
+  font-weight: 800;
+  color: white;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  text-shadow:
+    0 2px 4px rgba(0,0,0,.95),
+    0 0 6px rgba(0,0,0,.5);
+}
+
+/* TOURNAMENT RECORD */
+
+.player-record {
+  font-size: 24px;
+  font-weight: 800;
+  color: #123150;
+  letter-spacing: 1px;
+
+  text-shadow:
+    0 1px 1px rgba(255,255,255,.45);
+}
+
+/* INK COMBINATIONS */
+
+.ink-slot {
+  width: 108px;
+  height: 108px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ink-image {
+  width: 108px;
+  height: 108px;
+  object-fit: contain;
+  display: none;
+}
+
+.ink-placeholder {
+  width: 108px;
+  height: 108px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: white;
+  font-size: 14px;
+}
+
+/* =========================
+   FEATURED CARD - LEFT ONLY
+
+   MOVED DOWN 20PX
+========================= */
+
+.featured-card {
+  position: absolute;
+  top: 646px;
+  left: 50%;
+  transform: translateX(-50%);
+
+  width: 205px;
+  height: 278px;
+
+  object-fit: contain;
+  display: none;
+  pointer-events: none;
+}
+
+/* GAME WIN ICONS */
+
+.games {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin-top: 0;
+}
+
+.game-icon {
+  width: 105px;
+  height: 105px;
+  object-fit: contain;
+  opacity: .32;
+
+  filter:
+    drop-shadow(0 1px 1px rgba(0,0,0,.65));
+
+  transition: opacity .15s;
+}
+
+.game-icon + .game-icon {
+  margin-left: -25px;
+}
+
+.game-icon.won {
+  opacity: 1;
+}
+
+.game-icon.just-won {
+  animation: gamePulse .35s ease;
+}
+
+@keyframes gamePulse {
+  50% {
+    transform: scale(1.14);
+  }
+}
+
+/* PURPLE DISNEY LOGOS */
+
+.lorcana-logo {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  width: 216px;
+  height: 125px;
+
+  object-fit: contain;
+  object-position: center bottom;
+
+  pointer-events: none;
+}
+
+/* =========================
+   ROUND TIMER
+   WIDTH: 220PX
+   HEIGHT: 90PX
+========================= */
+
+.timer-box {
+  position: absolute;
+  top: 3px;
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  width: 220px;
+  height: 90px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  text-align: center;
+  padding: 6px 12px 8px;
+
+  background:
+    radial-gradient(
+      circle at 50% 12%,
+      rgba(255,234,150,.26),
+      transparent 42%
+    ),
+    radial-gradient(
+      circle at 50% 100%,
+      rgba(55,145,210,.22),
+      transparent 55%
+    ),
+    linear-gradient(
+      180deg,
+      #214d78,
+      #123150 34%,
+      #0b1e32 68%,
+      #050c15
+    );
+
+  border: 2px solid #f0c85b;
+  border-radius: 6px;
+
+  box-shadow:
+    inset 0 0 25px rgba(255,240,175,.06),
+    inset 0 0 45px rgba(35,115,180,.10),
+    inset 0 0 60px rgba(0,0,0,.8),
+    0 0 8px rgba(240,200,91,.24);
+}
+
+.round-name,
+.time {
+  color: white;
+  font-weight: bold;
+  white-space: nowrap;
+
+  text-shadow:
+    0 0 2px rgba(255,255,255,.95),
+    0 0 7px rgba(170,245,255,.65),
+    0 0 14px rgba(55,205,255,.32);
+}
+
+.round-name {
+  font-size: 27px;
+  line-height: 1.05;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.time {
+  font-size: 46px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+</style>
+</head>
+
+<body>
+
+<div id="viewport">
+<div class="overlay" id="overlay">
+
+  <!-- PLAYER 1 - LEFT -->
+
+  <div class="side left">
+    <div class="panel">
+
+      <div class="player-info">
+
+        <div id="p1Name" class="player-name">
+          Player 1
+        </div>
+
+        <div id="p1Record" class="player-record">
+          0-0-0
+        </div>
+
+        <div class="ink-slot">
+          <img
+            class="ink-image"
+            id="p1InkImage"
+            alt="Player 1 ink"
+          >
+
+          <div
+            class="ink-placeholder"
+            id="p1InkPlaceholder">
+            Select inks
+          </div>
+        </div>
+
+        <div class="games">
+          <img
+            id="p1g1"
+            class="game-icon"
+            src="./Illuminary%20Icon_White.png"
+            alt="Player 1 game 1"
+          >
+
+          <img
+            id="p1g2"
+            class="game-icon"
+            src="./Illuminary%20Icon_White.png"
+            alt="Player 1 game 2"
+          >
+        </div>
+
+      </div>
+
+      <!-- SELECTABLE CARD ART ONLY -->
+
+      <img
+        class="featured-card"
+        id="featuredCard"
+        alt="Featured Lorcana Card"
+      >
+
+      <img
+        class="lorcana-logo"
+        src="./purple%20disney%20logo.png"
+        alt="Disney Lorcana"
+      >
+
+    </div>
+
+    <div class="track">
+      <div class="markers" id="leftTrack"></div>
+    </div>
+  </div>
+
+  <!-- PLAYER 2 - RIGHT -->
+
+  <div class="side right">
+    <div class="track">
+      <div class="markers" id="rightTrack"></div>
+    </div>
+
+    <div class="panel">
+
+      <div class="player-info">
+
+        <div id="p2Name" class="player-name">
+          Player 2
+        </div>
+
+        <div id="p2Record" class="player-record">
+          0-0-0
+        </div>
+
+        <div class="ink-slot">
+          <img
+            class="ink-image"
+            id="p2InkImage"
+            alt="Player 2 ink"
+          >
+
+          <div
+            class="ink-placeholder"
+            id="p2InkPlaceholder">
+            Select inks
+          </div>
+        </div>
+
+        <div class="games">
+          <img
+            id="p2g1"
+            class="game-icon"
+            src="./Illuminary%20Icon_White.png"
+            alt="Player 2 game 1"
+          >
+
+          <img
+            id="p2g2"
+            class="game-icon"
+            src="./Illuminary%20Icon_White.png"
+            alt="Player 2 game 2"
+          >
+        </div>
+
+      </div>
+
+      <img
+        class="lorcana-logo"
+        src="./purple%20disney%20logo.png"
+        alt="Disney Lorcana"
+      >
+
+    </div>
+  </div>
+
+  <!-- ROUND + TIMER -->
+
+  <div class="timer-box">
+    <div id="roundName" class="round-name">
+      Round 1
+    </div>
+
+    <div id="time" class="time">
+      60:00
+    </div>
+  </div>
+
+</div>
+</div>
+
+<script type="module">
+
+import {db,ref,onValue,set,update,runTransaction,requireLogin} from './firebase.js';
+
+
+const $ = id => document.getElementById(id);
+
+/* FIT TO SCREEN AT 1920 X 1080 */
+
+function fitOverlay() {
+  const scale = Math.min(
+    window.innerWidth / 1920,
+    window.innerHeight / 1080
+  );
+
+  const x =
+    (window.innerWidth - 1920 * scale) / 2;
+
+  const y =
+    (window.innerHeight - 1080 * scale) / 2;
+
+  $("overlay").style.transform =
+    `translate(${x}px,${y}px) scale(${scale})`;
+}
+
+window.addEventListener("resize", fitOverlay);
+fitOverlay();
+
+/* LORE TRACKERS */
+
+function buildTrack(container) {
+  for (let i = 20; i >= 0; i--) {
+    const marker = document.createElement("div");
+    marker.className = "marker";
+    marker.textContent = i;
+    marker.dataset.lore = i;
+
+    marker.style.top =
+      ((20 - i) / 20 * 100) + "%";
+
+    container.appendChild(marker);
+  }
+}
+
+buildTrack($("leftTrack"));
+buildTrack($("rightTrack"));
+
+function showLore(container, raw) {
+  const value = Math.max(
+    0,
+    Math.min(20, Math.floor(Number(raw) || 0))
+  );
+
+  for (const marker of container.children) {
+    const number = Number(marker.dataset.lore);
+
+    marker.classList.toggle(
+      "lit",
+      number <= value
+    );
+
+    marker.classList.toggle(
+      "current",
+      number === value
+    );
+  }
+}
+
+onValue(ref(db, "p1"), snapshot => {
+  showLore($("leftTrack"), snapshot.val());
+});
+
+onValue(ref(db, "p2"), snapshot => {
+  showLore($("rightTrack"), snapshot.val());
+});
+
+/* INK COMBINATIONS */
+
+const validImages = new Set([
+  "amber amethyst.png",
+  "amber emerald.png",
+  "amber sapphire.png",
+  "amber steel.png",
+  "amethyst emerald.png",
+  "amethyst ruby.png",
+  "amethyst sapphire.png",
+  "amethyst steel.png",
+  "blue steel 1.png",
+  "emerald ruby.png",
+  "emerald sapphire.png",
+  "green steel.png",
+  "ruby amber.png",
+  "ruby sapphire.png",
+  "ruby steel.png"
+]);
+
+function showInk(player, filename) {
+  const image = $(player + "InkImage");
+  const placeholder = $(player + "InkPlaceholder");
+
+  if (!validImages.has(filename)) {
+    image.removeAttribute("src");
+    image.style.display = "none";
+
+    placeholder.textContent = "Select inks";
+    placeholder.style.display = "flex";
+    return;
+  }
+
+  image.onload = () => {
+    image.style.display = "block";
+    placeholder.style.display = "none";
+  };
+
+  image.onerror = () => {
+    image.style.display = "none";
+    placeholder.textContent = "Image not found";
+    placeholder.style.display = "flex";
+  };
+
+  image.src =
+    "./Ink%20combinations/" +
+    encodeURIComponent(filename);
+}
+
+onValue(ref(db, "p1Ink"), snapshot => {
+  showInk("p1", snapshot.val());
+});
+
+onValue(ref(db, "p2Ink"), snapshot => {
+  showInk("p2", snapshot.val());
+});
+
+/* =========================
+   FEATURED CARD DISPLAY
+
+   Listens to personal Firebase:
+   featuredDisplay
+
+   Expected value:
+   {
+     mode: "card",
+     cardUrl: "https://cards.lorcast.io/card/..."
+   }
+
+   Nothing is shown until a card
+   is selected.
+========================= */
+
+const featuredCard = $("featuredCard");
+
+function showFeaturedCard(data) {
+  let cardUrl = "";
+
+  if (
+    data &&
+    typeof data === "object" &&
+    data.mode === "card" &&
+    typeof data.cardUrl === "string"
+  ) {
+    try {
+      const url = new URL(data.cardUrl);
+
+      if (
+        url.protocol === "https:" &&
+        url.hostname === "cards.lorcast.io" &&
+        url.pathname.startsWith("/card/")
+      ) {
+        cardUrl = url.href;
+      }
+    } catch (_) {}
+  }
+
+  if (!cardUrl) {
+    featuredCard.style.display = "none";
+    featuredCard.removeAttribute("src");
+    return;
+  }
+
+  featuredCard.onload = () => {
+    featuredCard.style.display = "block";
+  };
+
+  featuredCard.onerror = () => {
+    featuredCard.style.display = "none";
+  };
+
+  if (featuredCard.getAttribute("src") !== cardUrl) {
+    featuredCard.style.display = "none";
+    featuredCard.src = cardUrl;
+  }
+}
+
+onValue(ref(db, "featuredDisplay"), snapshot => {
+  showFeaturedCard(snapshot.val());
+});
+
+/* GAME WIN ICONS */
+
+function renderGames(player, raw) {
+  const wins = Math.max(
+    0,
+    Math.min(2, Number(raw) || 0)
+  );
+
+  for (let i = 1; i <= 2; i++) {
+    const icon = $(player + "g" + i);
+
+    const newlyWon =
+      wins >= i &&
+      !icon.classList.contains("won");
+
+    icon.classList.toggle("won", wins >= i);
+
+    if (newlyWon) {
+      icon.classList.remove("just-won");
+      void icon.offsetWidth;
+      icon.classList.add("just-won");
+
+      setTimeout(() => {
+        icon.classList.remove("just-won");
+      }, 350);
+    }
+  }
+}
+
+onValue(ref(db, "p1Games"), snapshot => {
+  renderGames("p1", snapshot.val());
+});
+
+onValue(ref(db, "p2Games"), snapshot => {
+  renderGames("p2", snapshot.val());
+});
+
+/* PLAYER NAMES + RECORDS */
+
+for (const player of ["p1", "p2"]) {
+  onValue(
+    ref(db, player + "Name"),
+    snapshot => {
+      const name =
+        String(snapshot.val() ?? "").trim();
+
+      $(player + "Name").textContent =
+        name ||
+        (player === "p1" ? "Player 1" : "Player 2");
+    }
+  );
+
+  onValue(
+    ref(db, player + "Record"),
+    snapshot => {
+      const record =
+        String(snapshot.val() ?? "").trim();
+
+      $(player + "Record").textContent =
+        /^\d{1,3}-\d{1,3}-\d{1,3}$/.test(record)
+          ? record
+          : "0-0-0";
+    }
+  );
+}
+
+/* ROUND + TIMER */
+
+let timerState = {
+  roundName: "Round 1",
+  remaining: 3600,
+  running: false,
+  startedAt: 0
+};
+
+function renderTimer() {
+  const base = Math.max(
+    0,
+    Math.floor(Number(timerState.remaining) || 0)
+  );
+
+  const startedAt =
+    Number(timerState.startedAt) || 0;
+
+  const elapsed =
+    timerState.running && startedAt > 0
+      ? Math.max(
+          0,
+          Math.floor(
+            (Date.now() - startedAt) / 1000
+          )
+        )
+      : 0;
+
+  const remaining = Math.max(0, base - elapsed);
+
+  $("roundName").textContent =
+    timerState.roundName || "Round 1";
+
+  $("time").textContent =
+    Math.floor(remaining / 60) + ":" +
+    String(remaining % 60).padStart(2, "0");
+}
+
+onValue(ref(db, "timer"), snapshot => {
+  timerState = snapshot.val() || {
+    roundName: "Round 1",
+    remaining: 3600,
+    running: false,
+    startedAt: 0
+  };
+
+  renderTimer();
+});
+
+setInterval(renderTimer, 250);
+renderTimer();
+
+</script>
+</body>
+</html>

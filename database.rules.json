@@ -1,0 +1,14 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "lorcana": {
+      ".read": true,
+      ".write": "auth != null && auth.uid === '39V4Om8N4cgfwuiQgxFkZCSFrmO2'"
+    },
+    "onepiece": {
+      ".read": true,
+      ".write": "auth != null && auth.uid === '39V4Om8N4cgfwuiQgxFkZCSFrmO2'"
+    }
+  }
+}
