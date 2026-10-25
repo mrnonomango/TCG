@@ -9,7 +9,7 @@
 #viewport{position:relative;width:100vw;height:100vh;overflow:hidden}
 #scene{position:absolute;width:1920px;height:1080px;transform-origin:top left;background:radial-gradient(ellipse at 50% 35%,#142232,#080d16 75%)}
 :root{--gold:#cfb579;--blue:#49baff;--green:#60d6ab}
-.playArea{position:absolute;left:306px;right:306px;top:176px;bottom:225px;border:1px dashed #70829744;background:repeating-conic-gradient(#ffffff03 0% 25%,transparent 0% 50%) 0 0/36px 36px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#90a3b9}
+.playArea{position:absolute;left:306px;right:306px;top:176px;bottom:285px;border:1px dashed #70829744;background:repeating-conic-gradient(#ffffff03 0% 25%,transparent 0% 50%) 0 0/36px 36px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#90a3b9}
 .playArea strong{font-size:27px;letter-spacing:4px;color:#bac7d7}.playArea span{margin-top:13px;font-size:16px}
 .timerBox{position:absolute;top:8px;left:50%;transform:translateX(-50%);width:170px;height:64px;border:2px solid var(--gold);border-radius:6px;background:linear-gradient(#26374f,#101a2a);display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 8px 30px #0005;z-index:2}
 .round{font-size:20px;font-weight:800}.time{font-size:34px;font-weight:900;line-height:1}
@@ -36,7 +36,7 @@
 .goal{width:72px;height:72px;border:3px solid var(--gold);border-radius:50%;box-shadow:0 0 16px #d9b85c55;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 35% 25%,#fff0ac,#d3aa43 65%,#977023);font-size:41px;font-weight:900;color:#30220a}
 .scoreLabel{position:absolute;top:50px;font-size:12px;letter-spacing:2px;font-weight:bold}.scoreLabel.left{left:316px;color:var(--blue)}.scoreLabel.right{right:316px;color:var(--green)}
 .battlefields{position:absolute;left:320px;right:320px;bottom:24px;display:grid;grid-template-columns:1fr 210px 1fr;align-items:end;gap:32px}
-.battlefield{height:172px;border:2px solid var(--gold);border-radius:10px;background:linear-gradient(145deg,#20374a,#0d1826 70%);position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
+.battlefield{height:240px;border:2px solid var(--gold);border-radius:10px;background:linear-gradient(145deg,#20374a,#0d1826 70%);position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
 .battlefield::before{content:"";position:absolute;inset:8px;border:1px solid #cfb57955;border-radius:5px}
 .battlefield strong{font-size:23px;letter-spacing:2px;color:#dce8f4}.battlefield span{font-size:13px;letter-spacing:2px;color:var(--gold);margin-top:12px}
 .brand{align-self:center;text-align:center;color:#ebd7ab;font-size:30px;font-weight:900;letter-spacing:3px}.brand small{display:block;font-size:11px;color:#8094aa;letter-spacing:2px;margin-top:9px}
@@ -61,7 +61,7 @@
 .championName{position:absolute;bottom:0;left:0;right:0;padding:24px 9px 12px;background:linear-gradient(transparent,#050b16 65%);font-size:16px;line-height:1.2;text-shadow:0 2px 4px #000;z-index:1}
 
 .champion,.battlefield{cursor:pointer}
-.championArt img{position:absolute;width:120%;max-width:none;height:auto;left:-10%;top:-58px}
+.championArt img{position:absolute;width:100%;max-width:none;height:auto;left:0;top:-36px}
 .battlefield img{width:100%;height:100%;object-fit:contain}
 .battlefield::before{pointer-events:none}
 .cardHint{position:absolute;left:0;right:0;bottom:0;background:#050b16d9;color:#fff;font-size:12px;padding:5px;text-align:center}
