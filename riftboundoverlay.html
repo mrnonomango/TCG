@@ -102,6 +102,17 @@ html,body,#scene{background:transparent}.camera{background:transparent}.champion
 .playArea{display:none}
 .bottomBrand{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);width:230px;height:105px;display:flex;align-items:center;justify-content:center}
 .bottomBrand img{width:100%;height:100%;object-fit:contain}
+
+/* Balanced side panel spacing while retaining fixed OBS camera slots. */
+.player{justify-content:space-between;padding-bottom:36px;gap:0}
+.player .camera{flex-shrink:0}
+.player .champion,.player .record,.player .wins,.player .sideBattlefield,.player .featuredCard{flex-shrink:0}
+.player .featuredCard{width:172px;height:241px}
+.scoreLabel{position:absolute;top:40px;width:215px;max-width:215px;height:42px;padding:0 10px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;letter-spacing:0;color:white;background:linear-gradient(var(--primary),var(--base));border:2px solid var(--accent);border-radius:6px;text-shadow:0 2px 5px #000;z-index:3}
+.scoreLabel.left{left:260px}.scoreLabel.right{right:260px}
+.timerBox{width:322px;height:68px;top:8px;display:flex;flex-direction:row;gap:16px;padding:0 16px}
+.timerBox .round{max-width:150px;font-size:23px;line-height:1;flex-shrink:0}
+.timerBox .time{font-size:37px;line-height:1}
 </style></head><body><div id="viewport"><div id="scene"><svg class="backdrop" width="1920" height="1080" viewBox="0 0 1920 1080" aria-hidden="true"><defs><linearGradient id="panels" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--primary)"/><stop offset="1" style="stop-color:var(--base)"/></linearGradient></defs><path fill="url(#panels)" fill-rule="evenodd" d="M0 0H240V1080H0Z M1680 0H1920V1080H1680Z"/></svg>
 <div class="timerBox"><div class="round" id="round">Round 1</div><div class="time" id="time">60:00</div></div><div class="scoreLabel left" id="name1">Player 1</div><div class="scoreLabel right" id="name2">Player 2</div><div class="tracks"><div class="track left" id="track1"></div><div class="goal" id="goal">8</div><div class="track right" id="track2"></div></div><section class="player left"><div class="camera"></div><div class="champion empty" id="legend1"></div><div class="record" id="record1">0-0-0</div><div class="wins"><img class="win" id="win11" src="./riftboundassets/riftboundwin.png" alt="Game win 1"><img class="win" id="win12" src="./riftboundassets/riftboundwin.png" alt="Game win 2"></div><div class="sideBattlefield battlefield empty" id="battlefield1"></div><div class="featuredCard empty" id="regular1"></div></section><section class="player right"><div class="camera"></div><div class="champion empty" id="legend2"></div><div class="record" id="record2">0-0-0</div><div class="wins"><img class="win" id="win21" src="./riftboundassets/riftboundwin.png" alt="Game win 1"><img class="win" id="win22" src="./riftboundassets/riftboundwin.png" alt="Game win 2"></div><div class="sideBattlefield battlefield empty" id="battlefield2"></div><div class="featuredCard empty" id="regular2"></div></section><div class="bottomBrand"><img class="centerLogo" src="./riftboundassets/riftboundlogo.png" alt="Riftbound"></div><div id="connection">Connecting to Riftbound…</div></div></div><script src="./riftboundportraits.js?v=live1"></script><script type="module">
 import {regularCard} from './riftboundregularcards.js';
