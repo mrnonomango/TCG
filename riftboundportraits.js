@@ -285,7 +285,7 @@ window.riftboundPortraits = [
     "src": "./riftboundassets/legendunl191.png",
     "width": "65%",
     "left": "17.5%",
-    "top": "-40px"
+    "top": "-25px"
   },
   {
     "champion": "Mel",
