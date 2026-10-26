@@ -279,6 +279,15 @@ window.riftboundPortraits = [
     "top": "-40px"
   },
   {
+    "champion": "Master Yi",
+    "name": "Master Yi, Wuju Master",
+    "code": "UNL-191",
+    "src": "./riftboundassets/legendunl191.png",
+    "width": "65%",
+    "left": "17.5%",
+    "top": "-40px"
+  },
+  {
     "champion": "Mel",
     "name": "Mel, Soul's Reflection",
     "code": "VEN-151",
