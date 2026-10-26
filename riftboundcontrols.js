@@ -20,8 +20,8 @@ export function cardPicker({frame,container,back,onSelect}){
  back.onclick=close;
  window.addEventListener('message',event=>{
   const data=event.data;if(!active||event.origin!==location.origin||event.source!==frame.contentWindow||data?.type!=='tcgstore:riftbound-card-selected'||data.request!==active.request||data.kind!==active.kind)return;
-  if(data.code!==null&&!getCard(data.code,active.kind))return;
+  if(data.code!==null&&active.kind!=='Regular'&&!getCard(data.code,active.kind))return;
   const selected={...active,code:data.code};close();onSelect(selected);
  });
- return{close,open(player,kind){if(![1,2].includes(player)||!['Legend','Battlefield'].includes(kind))return;const request=Date.now()+'-'+(++counter);active={player,kind,request};const url=new URL('./riftboundcardpicker.html',location.href);url.searchParams.set('kind',kind);url.searchParams.set('request',request);url.searchParams.set('v','sync1');frame.src=url.href;container.classList.add('open');}};
+ return{close,open(player,kind){if(![1,2].includes(player)||!['Legend','Battlefield','Regular'].includes(kind))return;const request=Date.now()+'-'+(++counter);active={player,kind,request};const url=new URL('./riftboundcardpicker.html',location.href);url.searchParams.set('kind',kind);url.searchParams.set('request',request);url.searchParams.set('v','sync1');frame.src=url.href;container.classList.add('open');}};
 }
