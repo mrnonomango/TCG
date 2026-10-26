@@ -2,16 +2,16 @@
 *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:transparent;font-family:Arial,sans-serif}
 :root{--base:#071828;--primary:#115a96;--accent:#3196d3}
 #viewport{width:100vw;height:100vh;overflow:hidden;position:relative}.scene{position:absolute;top:0;left:0;width:1920px;height:1080px;transform-origin:top left;background:transparent}
-.side{position:absolute;top:0;width:295px;height:1080px;background:linear-gradient(180deg,var(--primary),var(--base) 95%);border:3px solid var(--accent);box-shadow:inset 0 0 0 8px #061625;color:white;text-align:center;overflow:hidden}.side.left{left:0}.side.right{right:0}
-.camera{height:248px;border-bottom:3px solid var(--accent)}
+.side{position:absolute;top:0;width:240px;height:1080px;background:linear-gradient(180deg,var(--primary),var(--base) 95%);border:3px solid var(--accent);box-shadow:inset 0 0 0 8px #061625;color:white;text-align:center;overflow:hidden}.side.left{left:0}.side.right{right:0}
+.camera{height:180px;border-bottom:3px solid var(--accent)}
 /* The content area between the camera and bottom logo is evenly distributed. */
-.playerInfo{position:absolute;top:265px;bottom:151px;left:12px;right:12px;display:flex;flex-direction:column;justify-content:space-between;align-items:center;min-height:0}
-.name{font-size:26px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;line-height:34px;text-shadow:0 2px 4px #000}
-.record{font-size:23px;line-height:30px;color:#b3d6ec;font-weight:800}
-.wins{display:flex;justify-content:center;gap:8px;height:57px;align-items:center}.win{display:block;width:76px;height:55px;object-fit:contain;filter:grayscale(1) invert(1) contrast(2);mix-blend-mode:screen;opacity:.32;transition:opacity .15s}.win.won{opacity:1}
-.lifeGroup{display:flex;flex-direction:column;align-items:center;gap:1px}.lifeLabel{font-weight:900;letter-spacing:3px;font-size:21px;color:#cce9fb}.lifeValue{font-size:77px;line-height:1.05;font-weight:900;color:#fff;text-shadow:0 3px 8px #000,0 0 13px var(--accent)}
-.leader{display:flex;align-items:center;justify-content:center;width:210px;height:292px;border:0;background:transparent;flex-shrink:0}.leader img{width:100%;height:100%;object-fit:contain}
-.logo{position:absolute;bottom:30px;left:50%;transform:translateX(-50%);width:255px;height:95px;object-fit:contain;filter:invert(1) grayscale(1);mix-blend-mode:screen}
+.playerInfo{position:absolute;top:197px;bottom:132px;left:10px;right:10px;display:flex;flex-direction:column;justify-content:space-between;align-items:center;min-height:0}
+.name{font-size:23px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;line-height:31px;text-shadow:0 2px 4px #000}
+.record{font-size:21px;line-height:28px;color:#b3d6ec;font-weight:800}
+.wins{display:flex;justify-content:center;gap:8px;height:52px;align-items:center}.win{display:block;width:66px;height:49px;object-fit:contain;filter:grayscale(1) invert(1) contrast(2);mix-blend-mode:screen;opacity:.32;transition:opacity .15s}.win.won{opacity:1}
+.lifeGroup{display:flex;flex-direction:column;align-items:center;gap:1px}.lifeLabel{font-weight:900;letter-spacing:3px;font-size:19px;color:#cce9fb}.lifeValue{font-size:72px;line-height:1.05;font-weight:900;color:#fff;text-shadow:0 3px 8px #000,0 0 13px var(--accent)}
+.leader{display:flex;align-items:center;justify-content:center;width:190px;height:265px;border:0;background:transparent;flex-shrink:0}.leader img{width:100%;height:100%;object-fit:contain}
+.logo{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);width:210px;height:85px;object-fit:contain;filter:invert(1) grayscale(1);mix-blend-mode:screen}
 .timerBox{position:absolute;top:3px;left:50%;transform:translateX(-50%);min-width:225px;height:92px;background:linear-gradient(var(--primary),var(--base));border:2px solid var(--accent);border-radius:6px;color:white;display:flex;flex-direction:column;align-items:center;justify-content:center;text-shadow:0 1px 6px #000}.round{font-size:26px;font-weight:800;max-width:400px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.time{font-size:45px;font-weight:900;line-height:1}
 #status{position:absolute;left:50%;top:114px;transform:translateX(-50%);padding:9px 15px;border:1px solid var(--accent);border-radius:7px;background:#071828;color:#fff;font-size:16px;display:none}
 </style></head><body><div id="viewport"><div id="scene" class="scene">
